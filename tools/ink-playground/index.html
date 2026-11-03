@@ -48,6 +48,8 @@ header {
   padding-right: max(16px, env(safe-area-inset-right, 0px));
   border-bottom: 1px solid var(--line); background: var(--panel);
 }
+#sync { font: 11px var(--mono); color: var(--muted); }
+#sync.ok { color: var(--ok); } #sync.err { color: var(--err); }
 header h1 { font-size: 16px; font-weight: 600; margin: 0 8px 0 0; letter-spacing: .02em; }
 select, button, input[type="text"] {
   font: 13px var(--mono); color: var(--fg); background: var(--bg);
@@ -131,6 +133,7 @@ dialog input[type="text"] { width: 100%; }
 <body>
 <header>
   <h1>Ink Unterwegs</h1>
+  <span id="sync" title="Cloud-Sync">nur lokal</span>
   <div class="tabs" role="tablist">
     <button role="tab" id="tabEdit" aria-selected="true">Skript</button>
     <button role="tab" id="tabPlay" aria-selected="false">Spielen</button>
@@ -194,7 +197,7 @@ Doctor: Spoken line.      Sprecher: Konvention, kein Ink-Befehl
 <script>
 (function () {
   const $ = (id) => document.getElementById(id);
-  const KEY = 'ink-unterwegs-v1';
+  const KEY = 'ink-unterwegs-v2';
   const SAMPLE = `// Beispiel: einfach überschreiben.
 VAR meds = false
 VAR trust = 0
@@ -224,24 +227,94 @@ Doctor: How are you feeling today?
 Doctor: Let's begin.
 -> END
 `;
+  const newId = () => 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
-  // ---------- Speicher ----------
-  let store = { files: { 'start.ink': SAMPLE }, current: 'start.ink' };
+  // ---------- Lokaler Speicher (Cache, funktioniert auch offline) ----------
+  // store.files: { id: { name, text, updated } }
+  let store = null;
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) { const s = JSON.parse(raw); if (s && s.files && s.current in s.files) store = s; }
+    if (raw) { const s = JSON.parse(raw); if (s && s.files && Object.keys(s.files).length) store = s; }
+    if (!store) {
+      const old = localStorage.getItem('ink-unterwegs-v1');
+      if (old) {
+        const o = JSON.parse(old); store = { files: {}, current: null };
+        Object.keys(o.files || {}).forEach(n => { const id = newId(); store.files[id] = { name: n, text: o.files[n], updated: Date.now() }; if (n === o.current) store.current = id; });
+      }
+    }
   } catch (e) {}
+  if (!store || !Object.keys(store.files).length) {
+    const id = newId();
+    store = { files: { [id]: { name: 'start.ink', text: SAMPLE, updated: Date.now() } }, current: id };
+  }
+  if (!(store.current in store.files)) store.current = Object.keys(store.files)[0];
   function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
 
-  const src = $('src'), status = $('status'), log = $('log'), fileSel = $('fileSel'), playInfo = $('playInfo');
+  const src = $('src'), status = $('status'), log = $('log'), fileSel = $('fileSel'), playInfo = $('playInfo'), sync = $('sync');
+  const cur = () => store.files[store.current];
 
   function refreshFiles() {
     fileSel.innerHTML = '';
-    Object.keys(store.files).sort().forEach(n => {
-      const o = document.createElement('option'); o.value = n; o.textContent = n; fileSel.appendChild(o);
+    Object.keys(store.files).sort((a, b) => store.files[a].name.localeCompare(store.files[b].name)).forEach(id => {
+      const o = document.createElement('option'); o.value = id; o.textContent = store.files[id].name; fileSel.appendChild(o);
     });
     fileSel.value = store.current;
-    src.value = store.files[store.current];
+    if (src.value !== cur().text) src.value = cur().text;
+  }
+
+  // ---------- Cloud-Sync (Claude-Artifact-Datenbank, pro Person privat) ----------
+  let coll = null;            // eigene Sammlung in der Datenbank
+  const dirty = new Set();    // ids mit noch nicht hochgeladenen Änderungen
+  const deleted = new Set();  // ids, die gelöscht werden sollen
+  let pushTimer = null;
+  function setSync(txt, cls) { sync.textContent = txt; sync.className = cls || ''; }
+
+  async function pushDirty() {
+    if (!coll) return;
+    const ids = Array.from(dirty); dirty.clear();
+    const dels = Array.from(deleted); deleted.clear();
+    try {
+      for (const id of ids) { const f = store.files[id]; if (f) await coll.doc(id).set({ name: f.name, text: f.text, updated: f.updated }); }
+      for (const id of dels) await coll.doc(id).delete();
+      setSync('☁ gespeichert', 'ok');
+    } catch (e) {
+      ids.forEach(id => dirty.add(id)); dels.forEach(id => deleted.add(id));
+      setSync('☁ Speichern fehlgeschlagen: ' + (e && e.code || 'unbekannt'), 'err');
+    }
+  }
+  function schedulePush() { if (!coll) return; setSync('☁ …'); clearTimeout(pushTimer); pushTimer = setTimeout(pushDirty, 1500); }
+
+  async function initCloud() {
+    if (!window.claude || !claude.use) { setSync('nur lokal'); return; }
+    const [db, user] = await Promise.all([claude.use('db'), claude.use('user')]);
+    const uid = user ? await user.id() : null;
+    if (!db || !uid) { setSync('nur lokal'); return; }
+    coll = db.collection('data/users/' + uid);
+    let first = true;
+    const timer = setTimeout(() => setSync('☁ keine Verbindung, lokal weiter', 'err'), 10000);
+    coll.onSnapshot(snap => {
+      if (!snap.metadata.fromCache) clearTimeout(timer);
+      let changed = false;
+      const seen = new Set();
+      snap.docs.forEach(d => {
+        const r = d.data(); seen.add(d.id);
+        const l = store.files[d.id];
+        if (!l || (r.updated || 0) > (l.updated || 0)) {
+          if (!dirty.has(d.id)) { store.files[d.id] = { name: r.name, text: r.text, updated: r.updated || 0 }; changed = true; }
+        }
+      });
+      if (first) {
+        first = false;
+        // Lokale Dateien, die in der Cloud fehlen, hochladen (z. B. vom ersten Gerät).
+        Object.keys(store.files).forEach(id => { if (!seen.has(id)) dirty.add(id); });
+      } else if (!snap.metadata.hasPendingWrites) {
+        // Auf einem anderen Gerät gelöscht.
+        Object.keys(store.files).forEach(id => { if (!seen.has(id) && !dirty.has(id) && Object.keys(store.files).length > 1) { delete store.files[id]; changed = true; } });
+        if (!(store.current in store.files)) store.current = Object.keys(store.files)[0];
+      }
+      if (changed) { save(); refreshFiles(); compile(); }
+      if (dirty.size) pushDirty(); else if (!snap.metadata.fromCache) setSync('☁ synchron', 'ok');
+    }, err => { setSync('☁ aus: ' + err.code, 'err'); coll = null; });
   }
 
   // ---------- Dialog ----------
@@ -311,13 +384,15 @@ Doctor: Let's begin.
     log.innerHTML = '';
     if (!compile()) { p('end', 'Skript hat Fehler, siehe Skript-Tab.'); return; }
     story.ResetState();
-    playInfo.textContent = store.current;
+    playInfo.textContent = cur().name;
     render();
   }
 
+  function touch(id) { store.files[id].updated = Date.now(); dirty.add(id); save(); schedulePush(); }
+
   // ---------- Events ----------
   src.addEventListener('input', () => {
-    store.files[store.current] = src.value; save();
+    cur().text = src.value; touch(store.current);
     clearTimeout(timer); timer = setTimeout(compile, 400);
   });
   src.addEventListener('keydown', (e) => {
@@ -333,29 +408,35 @@ Doctor: Let's begin.
   $('btnNew').onclick = async () => {
     const n = normName(await ask('Name der neuen Datei', 'szene.ink', true));
     if (!n) return;
-    if (!(n in store.files)) store.files[n] = '-> start\n\n=== start ===\n\n-> END\n';
-    store.current = n; save(); refreshFiles(); compile();
+    const id = newId();
+    store.files[id] = { name: n, text: '-> start\n\n=== start ===\n\n-> END\n', updated: Date.now() };
+    store.current = id; touch(id); refreshFiles(); compile();
   };
   $('btnRename').onclick = async () => {
-    const n = normName(await ask('Neuer Name', store.current, true));
-    if (!n || n === store.current || n in store.files) return;
-    store.files[n] = store.files[store.current]; delete store.files[store.current];
-    store.current = n; save(); refreshFiles();
+    const n = normName(await ask('Neuer Name', cur().name, true));
+    if (!n || n === cur().name) return;
+    cur().name = n; touch(store.current); refreshFiles();
   };
   $('btnDelete').onclick = async () => {
     if (Object.keys(store.files).length === 1) { status.className = 'err'; status.textContent = 'Die letzte Datei kann nicht gelöscht werden.'; return; }
-    if (!(await ask('„' + store.current + '" wirklich löschen?', '', false))) return;
-    delete store.files[store.current]; store.current = Object.keys(store.files)[0];
-    save(); refreshFiles(); compile();
+    if (!(await ask('„' + cur().name + '" wirklich löschen?', '', false))) return;
+    const id = store.current;
+    delete store.files[id]; dirty.delete(id); deleted.add(id);
+    store.current = Object.keys(store.files)[0];
+    save(); schedulePush(); refreshFiles(); compile();
   };
   $('btnImport').onclick = () => $('hidden-file').click();
   $('hidden-file').addEventListener('change', (e) => {
     const files = Array.from(e.target.files || []);
-    let last = null;
     let pending = files.length;
     files.forEach(f => {
       const r = new FileReader();
-      r.onload = () => { store.files[f.name] = String(r.result); last = f.name; if (--pending === 0) { store.current = last; save(); refreshFiles(); compile(); } };
+      r.onload = () => {
+        const id = newId();
+        store.files[id] = { name: f.name, text: String(r.result), updated: Date.now() };
+        store.current = id; dirty.add(id);
+        if (--pending === 0) { save(); schedulePush(); refreshFiles(); compile(); }
+      };
       r.readAsText(f);
     });
     e.target.value = '';
@@ -364,10 +445,15 @@ Doctor: Let's begin.
     try { await navigator.clipboard.writeText(src.value); status.className = 'ok'; status.textContent = 'In die Zwischenablage kopiert.'; }
     catch (e) { src.focus(); src.select(); status.className = ''; status.textContent = 'Text markiert. Jetzt mit Kopieren übernehmen.'; }
   };
-  $('btnDownload').onclick = () => {
+  $('btnDownload').onclick = async () => {
+    const dl = window.claude && claude.use ? await claude.use('downloads') : null;
+    if (dl) {
+      try { await dl.save({ filename: cur().name, data: src.value }); } catch (e) {}
+      return;
+    }
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([src.value], { type: 'text/plain' }));
-    a.download = store.current; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    a.download = cur().name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   };
   function showTab(play) {
     $('editorPane').hidden = play; $('playPane').hidden = !play;
@@ -389,6 +475,8 @@ Doctor: Let's begin.
   } else {
     restart();
   }
+  setSync('nur lokal');
+  initCloud().catch(() => setSync('nur lokal'));
 })();
 </script>
 </body>
