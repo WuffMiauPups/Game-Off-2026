@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ink Unterwegs</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* Layout: zwei Spalten (Skript | Vorschau) auf breiten Screens, Tabs auf dem Handy. */
+:root {
+  --bg: #f5f2ec;
+  --panel: #fdfcf9;
+  --fg: #1f1d1a;
+  --muted: #6d665c;
+  --line: #d9d2c6;
+  --accent: #2d5f6b;
+  --accent-fg: #ffffff;
+  --choice: #e8eef0;
+  --err: #a33a2a;
+  --ok: #3a7a4a;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --serif: "IBM Plex Serif", Georgia, serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #17191c; --panel: #1f2226; --fg: #e8e4dc; --muted: #9a938a; --line: #343940;
+    --accent: #6fb3c2; --accent-fg: #0f1a1d; --choice: #262d33; --err: #e07a68; --ok: #7cc48c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #17191c; --panel: #1f2226; --fg: #e8e4dc; --muted: #9a938a; --line: #343940;
+  --accent: #6fb3c2; --accent-fg: #0f1a1d; --choice: #262d33; --err: #e07a68; --ok: #7cc48c;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 15px/1.5 var(--serif);
+  display: flex; flex-direction: column;
+}
+header {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  padding-block: 8px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  border-bottom: 1px solid var(--line); background: var(--panel);
+}
+header h1 { font-size: 16px; font-weight: 600; margin: 0 8px 0 0; letter-spacing: .02em; }
+select, button, input[type="text"] {
+  font: 13px var(--mono); color: var(--fg); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px;
+}
+button { cursor: pointer; }
+button:focus-visible, select:focus-visible, textarea:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+button.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.spacer { flex: 1; }
+.tabs { display: none; gap: 4px; }
+.tabs button[aria-selected="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+main {
+  flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+section { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+#editorPane { border-right: 1px solid var(--line); }
+textarea#src {
+  flex: 1; width: 100%; resize: none; border: 0; margin: 0;
+  padding-block: 12px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: 16px;
+  font: 14px/1.55 var(--mono); color: var(--fg); background: var(--panel);
+  tab-size: 4; white-space: pre; overflow: auto;
+}
+#status {
+  font: 12px var(--mono); padding: 6px 16px; border-top: 1px solid var(--line);
+  color: var(--muted); max-height: 30vh; overflow: auto; white-space: pre-wrap; background: var(--panel);
+}
+#status.err { color: var(--err); }
+#status.ok { color: var(--ok); }
+#play {
+  flex: 1; overflow: auto;
+  padding-block: 16px;
+  padding-left: 16px;
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+#log { max-width: 62ch; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+#log p { margin: 0; }
+#log .tag { font: 12px var(--mono); color: var(--muted); }
+#log .picked { color: var(--muted); font-style: italic; border-left: 2px solid var(--line); padding-left: 10px; }
+#log .end { font: 12px var(--mono); color: var(--muted); text-align: center; padding-top: 8px; }
+.choices { display: flex; flex-direction: column; gap: 6px; padding-top: 6px; }
+.choices button {
+  text-align: left; font: 15px var(--serif); background: var(--choice);
+  border-color: transparent; padding: 10px 14px; border-radius: 8px;
+}
+.choices button:hover { border-color: var(--accent); }
+#playBar {
+  display: flex; gap: 8px; align-items: center; padding: 8px 16px;
+  border-bottom: 1px solid var(--line); background: var(--panel); font: 12px var(--mono); color: var(--muted);
+}
+details#help { border-top: 1px solid var(--line); background: var(--panel); }
+details#help summary { cursor: pointer; padding: 8px 16px; font: 13px var(--mono); color: var(--muted); }
+details#help pre {
+  margin: 0; padding: 8px 16px 16px; font: 12.5px/1.5 var(--mono); overflow-x: auto; color: var(--fg);
+}
+dialog {
+  background: var(--panel); color: var(--fg); border: 1px solid var(--line); border-radius: 10px;
+  padding: 16px; width: min(92vw, 420px); font: 14px var(--serif);
+}
+dialog::backdrop { background: rgba(0,0,0,.4); }
+dialog .row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+dialog input[type="text"] { width: 100%; }
+#hidden-file { display: none; }
+@media (max-width: 760px) {
+  .tabs { display: flex; }
+  main { grid-template-columns: 1fr; }
+  section[hidden] { display: none; }
+  #editorPane { border-right: 0; }
+  textarea#src { padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  #play { padding-left: max(16px, env(safe-area-inset-left, 0px)); }
+  header h1 { flex-basis: 100%; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  #log p { animation: fade .25s ease-out; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Ink Unterwegs</h1>
+  <div class="tabs" role="tablist">
+    <button role="tab" id="tabEdit" aria-selected="true">Skript</button>
+    <button role="tab" id="tabPlay" aria-selected="false">Spielen</button>
+  </div>
+  <select id="fileSel" title="Datei"></select>
+  <button id="btnNew" title="Neue Datei">Neu</button>
+  <button id="btnRename" title="Umbenennen">Name</button>
+  <button id="btnDelete" title="Datei löschen">Löschen</button>
+  <span class="spacer"></span>
+  <button id="btnImport">Importieren</button>
+  <button id="btnCopy">Kopieren</button>
+  <button id="btnDownload">Herunterladen</button>
+  <button id="btnRun" class="primary">Neu starten</button>
+  <input id="hidden-file" type="file" accept=".ink,.txt" multiple>
+</header>
+<main>
+  <section id="editorPane">
+    <textarea id="src" spellcheck="false" autocapitalize="off" autocorrect="off" aria-label="Ink-Skript"></textarea>
+    <div id="status">Bereit.</div>
+    <details id="help">
+      <summary>Ink-Spickzettel</summary>
+<pre>VAR meds = false          Variable (oben in der Datei)
+-> start                  Sprung zum Knoten
+
+=== start ===             Knoten
+Text, einfach so.
+Doctor: Spoken line.      Sprecher: Konvention, kein Ink-Befehl
+# mood: tense             Tag (wird in der Vorschau angezeigt)
+
+* [Nur Auswahltext]       Option, einmal wählbar
++ Immer wieder wählbar    Option, wiederholbar
+* [Wahl] Danach gezeigt   [..] erscheint nur im Menü
+    ~ meds = true         Variable setzen
+    -> next               Sprung
+
+{meds: muffled|clear}     Bedingung: wenn/sonst
+{meds} Text               nur wenn wahr
+{|Zweites Mal|Dritte Mal} Sequenz je Besuch
+{~A|B|C}                  Zufall
+
+= teil                    Unterknoten (-> start.teil)
+-> END                    Ende
+-> DONE                   Ende eines Threads/Tunnels</pre>
+    </details>
+  </section>
+  <section id="playPane" hidden>
+    <div id="playBar"><span id="playInfo">Vorschau</span><span class="spacer"></span><button id="btnRun2">Neu starten</button></div>
+    <div id="play"><div id="log"></div></div>
+  </section>
+</main>
+
+<dialog id="dlg">
+  <form method="dialog">
+    <p id="dlgMsg"></p>
+    <input type="text" id="dlgInput" placeholder="Dateiname">
+    <div class="row"><button value="cancel">Abbrechen</button><button value="ok" class="primary" id="dlgOk">OK</button></div>
+  </form>
+</dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/inkjs@2.3.2/dist/ink-full.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const KEY = 'ink-unterwegs-v1';
+  const SAMPLE = `// Beispiel: einfach überschreiben.
+VAR meds = false
+VAR trust = 0
+
+-> waiting_room
+
+=== waiting_room ===
+# scene: waiting room
+The young doctor looks up from her notes.
+Doctor: How are you feeling today?
+
+* [Fine, thanks.]
+    ~ trust = trust + 1
+    Doctor: I'm glad to hear that.
+    -> exam
+* [I can barely hear you.]
+    ~ meds = true
+    Doctor: I'll speak a little louder.
+    -> exam
+* [Say nothing.]
+    She waits. The clock ticks.
+    -> exam
+
+=== exam ===
+{meds: Her voice sounds muffled, as if through water.|Her voice is clear.}
+{trust > 0: She smiles briefly.}
+Doctor: Let's begin.
+-> END
+`;
+
+  // ---------- Speicher ----------
+  let store = { files: { 'start.ink': SAMPLE }, current: 'start.ink' };
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) { const s = JSON.parse(raw); if (s && s.files && s.current in s.files) store = s; }
+  } catch (e) {}
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
+
+  const src = $('src'), status = $('status'), log = $('log'), fileSel = $('fileSel'), playInfo = $('playInfo');
+
+  function refreshFiles() {
+    fileSel.innerHTML = '';
+    Object.keys(store.files).sort().forEach(n => {
+      const o = document.createElement('option'); o.value = n; o.textContent = n; fileSel.appendChild(o);
+    });
+    fileSel.value = store.current;
+    src.value = store.files[store.current];
+  }
+
+  // ---------- Dialog ----------
+  const dlg = $('dlg');
+  function ask(msg, def, withInput) {
+    return new Promise(res => {
+      $('dlgMsg').textContent = msg;
+      const inp = $('dlgInput'); inp.hidden = !withInput; inp.value = def || '';
+      dlg.returnValue = '';
+      dlg.onclose = () => res(dlg.returnValue === 'ok' ? (withInput ? inp.value.trim() : true) : null);
+      dlg.showModal(); if (withInput) inp.select();
+    });
+  }
+  function normName(n) { if (!n) return null; return /\.(ink|txt)$/i.test(n) ? n : n + '.ink'; }
+
+  // ---------- Compiler / Story ----------
+  let story = null;
+  let timer = null;
+
+  function compile() {
+    const text = src.value;
+    const msgs = [];
+    try {
+      const opts = new inkjs.CompilerOptions(null, [], false, (m) => msgs.push(m));
+      story = new inkjs.Compiler(text, opts).Compile();
+      const warn = msgs.filter(m => /WARNING|TODO/.test(m));
+      status.className = 'ok';
+      status.textContent = 'OK' + (warn.length ? '\n' + warn.join('\n') : '');
+      return true;
+    } catch (e) {
+      story = null;
+      status.className = 'err';
+      const own = msgs.filter(m => /ERROR/.test(m));
+      status.textContent = (own.length ? own : [String(e && e.message || e)]).join('\n');
+      return false;
+    }
+  }
+
+  function p(cls, text) { const el = document.createElement('p'); if (cls) el.className = cls; el.textContent = text; log.appendChild(el); }
+
+  function render() {
+    if (!story) return;
+    try {
+      while (story.canContinue) {
+        const line = story.Continue();
+        (story.currentTags || []).forEach(t => p('tag', '# ' + t));
+        if (line.trim()) p('', line.trim());
+      }
+      if (story.currentChoices.length) {
+        const box = document.createElement('div'); box.className = 'choices';
+        story.currentChoices.forEach((c, i) => {
+          const b = document.createElement('button'); b.textContent = c.text;
+          b.onclick = () => { box.remove(); p('picked', '▸ ' + c.text); story.ChooseChoiceIndex(i); render(); };
+          box.appendChild(b);
+        });
+        log.appendChild(box);
+      } else {
+        p('end', '— END —');
+      }
+    } catch (e) {
+      p('end', 'Laufzeitfehler: ' + (e && e.message || e));
+    }
+    $('play').scrollTop = $('play').scrollHeight;
+  }
+
+  function restart() {
+    log.innerHTML = '';
+    if (!compile()) { p('end', 'Skript hat Fehler, siehe Skript-Tab.'); return; }
+    story.ResetState();
+    playInfo.textContent = store.current;
+    render();
+  }
+
+  // ---------- Events ----------
+  src.addEventListener('input', () => {
+    store.files[store.current] = src.value; save();
+    clearTimeout(timer); timer = setTimeout(compile, 400);
+  });
+  src.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const s = src.selectionStart, en = src.selectionEnd;
+      src.setRangeText('    ', s, en, 'end');
+      src.dispatchEvent(new Event('input'));
+    }
+  });
+  fileSel.addEventListener('change', () => { store.current = fileSel.value; save(); refreshFiles(); compile(); });
+
+  $('btnNew').onclick = async () => {
+    const n = normName(await ask('Name der neuen Datei', 'szene.ink', true));
+    if (!n) return;
+    if (!(n in store.files)) store.files[n] = '-> start\n\n=== start ===\n\n-> END\n';
+    store.current = n; save(); refreshFiles(); compile();
+  };
+  $('btnRename').onclick = async () => {
+    const n = normName(await ask('Neuer Name', store.current, true));
+    if (!n || n === store.current || n in store.files) return;
+    store.files[n] = store.files[store.current]; delete store.files[store.current];
+    store.current = n; save(); refreshFiles();
+  };
+  $('btnDelete').onclick = async () => {
+    if (Object.keys(store.files).length === 1) { status.className = 'err'; status.textContent = 'Die letzte Datei kann nicht gelöscht werden.'; return; }
+    if (!(await ask('„' + store.current + '" wirklich löschen?', '', false))) return;
+    delete store.files[store.current]; store.current = Object.keys(store.files)[0];
+    save(); refreshFiles(); compile();
+  };
+  $('btnImport').onclick = () => $('hidden-file').click();
+  $('hidden-file').addEventListener('change', (e) => {
+    const files = Array.from(e.target.files || []);
+    let last = null;
+    let pending = files.length;
+    files.forEach(f => {
+      const r = new FileReader();
+      r.onload = () => { store.files[f.name] = String(r.result); last = f.name; if (--pending === 0) { store.current = last; save(); refreshFiles(); compile(); } };
+      r.readAsText(f);
+    });
+    e.target.value = '';
+  });
+  $('btnCopy').onclick = async () => {
+    try { await navigator.clipboard.writeText(src.value); status.className = 'ok'; status.textContent = 'In die Zwischenablage kopiert.'; }
+    catch (e) { src.focus(); src.select(); status.className = ''; status.textContent = 'Text markiert. Jetzt mit Kopieren übernehmen.'; }
+  };
+  $('btnDownload').onclick = () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([src.value], { type: 'text/plain' }));
+    a.download = store.current; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+  function showTab(play) {
+    $('editorPane').hidden = play; $('playPane').hidden = !play;
+    $('tabEdit').setAttribute('aria-selected', String(!play)); $('tabPlay').setAttribute('aria-selected', String(play));
+  }
+  const mq = window.matchMedia('(max-width: 760px)');
+  function applyLayout() { if (!mq.matches) { $('editorPane').hidden = false; $('playPane').hidden = false; } else showTab($('tabPlay').getAttribute('aria-selected') === 'true'); }
+  mq.addEventListener('change', applyLayout);
+  $('tabEdit').onclick = () => showTab(false);
+  $('tabPlay').onclick = () => { showTab(true); if (!log.children.length) restart(); };
+  $('btnRun').onclick = () => { if (mq.matches) showTab(true); restart(); };
+  $('btnRun2').onclick = restart;
+
+  // ---------- Start ----------
+  refreshFiles();
+  applyLayout();
+  if (typeof inkjs === 'undefined') {
+    status.className = 'err'; status.textContent = 'inkjs konnte nicht geladen werden. Bitte Internetverbindung prüfen und neu laden.';
+  } else {
+    restart();
+  }
+})();
+</script>
+</body>
+</html>
