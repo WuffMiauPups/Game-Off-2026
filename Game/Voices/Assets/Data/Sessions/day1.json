@@ -1,0 +1,41 @@
+{
+  "id": "day1",
+  "steps": [
+    { "type": "event", "eventName": "fade_in" },
+    { "type": "line", "speaker": "", "text": "[PLACEHOLDER] You wake up. You can't move." },
+    { "type": "event", "eventName": "doctors_enter" },
+    { "type": "line", "speaker": "HEAD DOCTOR", "text": "[PLACEHOLDER] Head doctor introduces himself." },
+    { "type": "line", "speaker": "OLD DOCTOR", "text": "[PLACEHOLDER] Old doctor introduces himself." },
+    { "type": "line", "speaker": "YOUNG DOCTOR", "text": "[PLACEHOLDER] Young doctor introduces herself." },
+    { "type": "line", "speaker": "HEAD DOCTOR", "text": "Please introduce yourself." },
+    {
+      "type": "question",
+      "speaker": "HEAD DOCTOR",
+      "text": "Your name is Hugo, right?",
+      "time": 15,
+      "timeoutReaction": "[PLACEHOLDER] timeout reaction",
+      "answers": [
+        { "voice": "paranoid", "text": "No, my name isn't Hugo. Who's Hugo? Who are you?", "reaction": "[PLACEHOLDER] reaction" },
+        { "voice": "aggressive", "text": "Shut up.", "reaction": "[PLACEHOLDER] reaction" },
+        { "voice": "youth", "text": "Why? Did I do something? I'm totally normal!", "reaction": "[PLACEHOLDER] reaction" },
+        { "voice": "empath", "text": "EXACTLY! I'm Hugo! And you have to let me out of here, this must be a mistake.", "reaction": "[PLACEHOLDER] reaction" },
+        { "voice": "bold", "text": "A name that nice would never suit you anyway.", "reaction": "[PLACEHOLDER] reaction" }
+      ]
+    },
+    {
+      "type": "question",
+      "speaker": "OLD DOCTOR",
+      "text": "[PLACEHOLDER] Question 2.",
+      "time": 8,
+      "timeoutReaction": "[PLACEHOLDER] timeout reaction",
+      "answers": [
+        { "voice": "paranoid", "text": "[PLACEHOLDER] paranoid answer" },
+        { "voice": "aggressive", "text": "[PLACEHOLDER] aggressive answer" },
+        { "voice": "youth", "text": "[PLACEHOLDER] youth answer" },
+        { "voice": "empath", "text": "[PLACEHOLDER] empath answer" },
+        { "voice": "bold", "text": "[PLACEHOLDER] bold answer" }
+      ]
+    },
+    { "type": "line", "speaker": "", "text": "[PLACEHOLDER] End of session." }
+  ]
+}

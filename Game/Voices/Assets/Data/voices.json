@@ -1,0 +1,9 @@
+{
+  "voices": [
+    { "id": "paranoid", "name": "PARANOID" },
+    { "id": "aggressive", "name": "AGGRESSIVE" },
+    { "id": "youth", "name": "YOUTH" },
+    { "id": "empath", "name": "EMPATH" },
+    { "id": "bold", "name": "BOLD" }
+  ]
+}
