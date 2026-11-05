@@ -67,6 +67,12 @@ main {
 }
 section { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
 #editorPane { border-right: 1px solid var(--line); }
+#snips {
+  display: flex; gap: 6px; overflow-x: auto; padding: 6px 16px; border-bottom: 1px solid var(--line);
+  background: var(--panel); scrollbar-width: thin; -webkit-overflow-scrolling: touch;
+}
+#snips button { flex: 0 0 auto; font-size: 12px; padding: 5px 9px; border-radius: 999px; white-space: nowrap; }
+#snips button:hover { border-color: var(--accent); }
 textarea#src {
   flex: 1; width: 100%; resize: none; border: 0; margin: 0;
   padding-block: 12px;
@@ -151,6 +157,7 @@ dialog input[type="text"] { width: 100%; }
 </header>
 <main>
   <section id="editorPane">
+    <div id="snips" aria-label="Bausteine einfügen"></div>
     <textarea id="src" spellcheck="false" autocapitalize="off" autocorrect="off" aria-label="Ink-Skript"></textarea>
     <div id="status">Bereit.</div>
     <details id="help">
@@ -316,6 +323,63 @@ Doctor: Let's begin.
       if (dirty.size) pushDirty(); else if (!snap.metadata.fromCache) setSync('☁ synchron', 'ok');
     }, err => { setSync('☁ aus: ' + err.code, 'err'); coll = null; });
   }
+
+
+  // ---------- Bausteine ----------
+  // {name} ist der Platzhalter, der nach dem Einfügen markiert wird.
+  const SNIPPETS = [
+    ['Knoten',      '=== {knot_name} ===\n\n-> END\n'],
+    ['Stitch',      '= {stitch_name}\n\n'],
+    ['Wahl einmal', '* [{choice_text}]\n    -> {target}\n'],
+    ['Wahl immer',  '+ [{choice_text}]\n    -> {target}\n'],
+    ['Sprung',      '-> {target}\n'],
+    ['Sprecher',    'Doctor: {line}\n'],
+    ['Variable',    'VAR {name} = false\n'],
+    ['Setzen',      '~ {name} = true\n'],
+    ['Wenn',        '{{cond}: {then_text}|{else_text}}'],
+    ['Nur wenn',    '{{cond}: {text}}'],
+    ['Bedingte Wahl','* {{cond}} [{choice_text}]\n    -> {target}\n'],
+    ['Sequenz',     '{{first}|{second}|{third}}'],
+    ['Zufall',      '{~{a}|{b}|{c}}'],
+    ['Tag',         '# {tag}: {value}\n'],
+    ['Tunnel',      '-> {tunnel} ->\n'],
+    ['Kommentar',   '// {note}\n'],
+    ['Ende',        '-> END\n'],
+  ];
+  function insertSnippet(tpl) {
+    const start = src.selectionStart, end = src.selectionEnd;
+    const before = src.value.slice(0, start);
+    const lineStart = before.lastIndexOf('\n') + 1;
+    const indent = before.slice(lineStart).match(/^[ \t]*/)[0];
+    const atLineStart = before.slice(lineStart).trim() === '';
+    // Mehrzeilige Blöcke an eine eigene Zeile setzen und einrücken.
+    let text = tpl;
+    if (tpl.includes('\n')) {
+      text = tpl.split('\n').map((l, i) => (i === 0 ? '' : indent) + l).join('\n');
+      if (!atLineStart) text = '\n' + indent + text;
+    }
+    // Platzhalter {name} -> name, ersten merken.
+    let selStart = -1, selEnd = -1;
+    text = text.replace(/\{([a-z_]+)\}/g, (m, name, off, full) => {
+      if (selStart < 0) {
+        const consumed = full.slice(0, off).replace(/\{([a-z_]+)\}/g, '$1').length;
+        selStart = consumed; selEnd = consumed + name.length;
+      }
+      return name;
+    });
+    src.setRangeText(text, start, end, 'end');
+    if (selStart >= 0) src.setSelectionRange(start + selStart, start + selEnd);
+    src.focus();
+    src.dispatchEvent(new Event('input'));
+  }
+  const snips = $('snips');
+  SNIPPETS.forEach(([label, tpl]) => {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = label;
+    // mousedown statt click, damit der Editor den Fokus und die Cursorposition behält.
+    b.addEventListener('mousedown', e => e.preventDefault());
+    b.addEventListener('click', () => insertSnippet(tpl));
+    snips.appendChild(b);
+  });
 
   // ---------- Dialog ----------
   const dlg = $('dlg');
