@@ -2,8 +2,9 @@
   "voices": [
     { "id": "paranoid", "name": "PARANOID" },
     { "id": "aggressive", "name": "AGGRESSIVE" },
-    { "id": "youth", "name": "YOUTH" },
-    { "id": "empath", "name": "EMPATH" },
-    { "id": "bold", "name": "BOLD" }
+    { "id": "childlike", "name": "CHILDLIKE" },
+    { "id": "yesman", "name": "YES-MAN" },
+    { "id": "empathic", "name": "EMPATHIC" },
+    { "id": "asshole", "name": "ASSHOLE" }
   ]
 }
