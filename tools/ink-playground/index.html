@@ -67,12 +67,13 @@ main {
 }
 section { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
 #editorPane { border-right: 1px solid var(--line); }
-#snips {
+#snips, #snipsGame {
   display: flex; gap: 6px; overflow-x: auto; padding: 6px 16px; border-bottom: 1px solid var(--line);
   background: var(--panel); scrollbar-width: thin; -webkit-overflow-scrolling: touch;
 }
-#snips button { flex: 0 0 auto; font-size: 12px; padding: 5px 9px; border-radius: 999px; white-space: nowrap; }
-#snips button:hover { border-color: var(--accent); }
+#snips button, #snipsGame button { flex: 0 0 auto; font-size: 12px; padding: 5px 9px; border-radius: 999px; white-space: nowrap; }
+#snips button:hover, #snipsGame button:hover { border-color: var(--accent); }
+#snipsGame span { flex: 0 0 auto; align-self: center; font: 11px var(--mono); color: var(--muted); }
 textarea#src {
   flex: 1; width: 100%; resize: none; border: 0; margin: 0;
   padding-block: 12px;
@@ -158,6 +159,7 @@ dialog input[type="text"] { width: 100%; }
 <main>
   <section id="editorPane">
     <div id="snips" aria-label="Bausteine einfügen"></div>
+    <div id="snipsGame" aria-label="Bausteine für Reports und Clues einfügen"><span>Reports</span></div>
     <textarea id="src" spellcheck="false" autocapitalize="off" autocorrect="off" aria-label="Ink-Skript"></textarea>
     <div id="status">Bereit.</div>
     <details id="help">
@@ -346,6 +348,19 @@ Doctor: Let's begin.
     ['Kommentar',   '// {note}\n'],
     ['Ende',        '-> END\n'],
   ];
+  // Für dieses Spiel: Bewertung pro Arzt, Clues und die Abzweigung zu den Enden.
+  const GAME_SNIPPETS = [
+    ['Startblock',  'VAR report_head = 0\nVAR report_old = 0\nVAR report_young = 0\nVAR clues = 0\n'],
+    ['Hauptarzt +', '~ report_head += 1\n'],
+    ['Hauptarzt −', '~ report_head -= 1\n'],
+    ['Alter +',     '~ report_old += 1\n'],
+    ['Alter −',     '~ report_old -= 1\n'],
+    ['Ärztin +',    '~ report_young += 1\n'],
+    ['Ärztin −',    '~ report_young -= 1\n'],
+    ['Clue +',      '~ clues += 1\n'],
+    ['Wenn Clues',  '{ clues >= 3: -> {target} }\n'],
+    ['Wenn Summe',  '{ report_head + report_old + report_young >= 3: -> {target} }\n'],
+  ];
   function insertSnippet(tpl) {
     const start = src.selectionStart, end = src.selectionEnd;
     const before = src.value.slice(0, start);
@@ -372,14 +387,17 @@ Doctor: Let's begin.
     src.focus();
     src.dispatchEvent(new Event('input'));
   }
-  const snips = $('snips');
-  SNIPPETS.forEach(([label, tpl]) => {
-    const b = document.createElement('button'); b.type = 'button'; b.textContent = label;
-    // mousedown statt click, damit der Editor den Fokus und die Cursorposition behält.
-    b.addEventListener('mousedown', e => e.preventDefault());
-    b.addEventListener('click', () => insertSnippet(tpl));
-    snips.appendChild(b);
-  });
+  function addSnippets(bar, list) {
+    list.forEach(([label, tpl]) => {
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = label;
+      // mousedown statt click, damit der Editor den Fokus und die Cursorposition behält.
+      b.addEventListener('mousedown', e => e.preventDefault());
+      b.addEventListener('click', () => insertSnippet(tpl));
+      bar.appendChild(b);
+    });
+  }
+  addSnippets($('snips'), SNIPPETS);
+  addSnippets($('snipsGame'), GAME_SNIPPETS);
 
   // ---------- Dialog ----------
   const dlg = $('dlg');
