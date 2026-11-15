@@ -10,6 +10,7 @@ namespace Voices.UI
         public RawImage face;
         public Text voiceName;
         public TypewriterText answer;
+        public Text shiftHint;
         public RectTransform timerFill;
 
         public Color timerNormal = new Color32(0x7a, 0x72, 0x72, 0xff);
@@ -36,7 +37,12 @@ namespace Voices.UI
         {
             group.alpha = 0f;
             answer.Stop();
+            SetShiftHint(false);
         }
+
+        public void SetShiftHint(bool visible) => shiftHint.enabled = visible;
+
+        public void SetTimerVisible(bool visible) => timerFill.parent.gameObject.SetActive(visible);
 
         // faceTexture may be null while there is no art yet; the placeholder box stays visible.
         public void SetVoice(string displayName, Texture faceTexture, string text, bool withGlitch)

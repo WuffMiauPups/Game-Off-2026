@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Ink.Runtime;
+using Ink.UnityIntegration;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Voices.Audio;
@@ -18,10 +19,13 @@ namespace Voices.Core
     //   # event: fade_in | doctors_enter
     //   # input: name      player types a name (not built yet, logged)
     //   # time: 8          seconds for the next question
+    //   # timer: off | on  questions from here on have no timer (intro day) / have one again
+    //   # sfx: knock       plays sfx_knock; "sigh" picks one of the sfx_sigh_* sounds (see SoundPlayer)
+    // The end of the story (-> END) is the end of the day and plays the gong.
     public class SessionController : MonoBehaviour
     {
         [Header("Data (Ink wins over JSON; empty = Resources/Ink/scene1)")]
-        public TextAsset inkJson;
+        public InkFile inkFile;
         public TextAsset sessionJson;
         public TextAsset voicesJson;
 
@@ -29,6 +33,7 @@ namespace Voices.Core
         public VoiceOverlay overlay;
         public SubtitleBox subtitle;
         public ProceduralSfx sfx;
+        public SoundPlayer sounds;
         public CanvasGroup blackScreen;
         public SpriteRenderer[] doctors;
 
@@ -40,6 +45,8 @@ namespace Voices.Core
         public float doctorFadeSeconds = 1f;
         public float defaultQuestionSeconds = 15f;
 
+        bool shiftUsed;
+        bool timerOn = true;
         readonly Dictionary<string, string> voiceNames = new();
         readonly Dictionary<string, Texture2D> faceById = new();
         readonly Dictionary<string, int> timesChosen = new();
@@ -61,12 +68,14 @@ namespace Voices.Core
             blackScreen.alpha = 1f;
             foreach (var d in doctors) SetAlpha(d, 0f);
 
-            var ink = inkJson ? inkJson : Resources.Load<TextAsset>("Ink/scene1");
-            if (ink)
+            // Ink integration 2.x imports .ink as an InkFile that holds the compiled JSON (no separate .json file).
+            var ink = inkFile ? inkFile : Resources.Load<InkFile>("Ink/scene1");
+            if (ink && ink.isCompiled)
             {
-                yield return RunInk(ink.text);
+                yield return RunInk(ink.storyJson);
                 yield break;
             }
+            if (ink) Debug.LogError($"SessionController: '{ink.name}' is not compiled, check the Ink file for errors. Falling back to JSON.");
 
             if (!sessionJson)
             {
@@ -110,6 +119,8 @@ namespace Voices.Core
                         {
                             case "event": yield return RunEvent(value); break;
                             case "time": float.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out nextQuestionSeconds); break;
+                            case "timer": timerOn = !value.Equals("off", System.StringComparison.OrdinalIgnoreCase); break;
+                            case "sfx": if (sounds) sounds.Play(value); break;
                             case "input": Debug.LogWarning($"Ink tag '# input: {value}' is not implemented yet, skipping."); break;
                             case "scene": break; // author's note, nothing to show
                             default: Debug.Log($"Ink tag ignored: {tag}"); break;
@@ -124,7 +135,11 @@ namespace Voices.Core
                     yield return RunLine(lastSpeaker, lastText);
                 }
 
-                if (story.currentChoices.Count == 0) yield break;
+                if (story.currentChoices.Count == 0)
+                {
+                    if (sounds) sounds.PlayDayEnd();
+                    yield break;
+                }
 
                 var answers = new Answer[story.currentChoices.Count];
                 for (int i = 0; i < answers.Length; i++)
@@ -235,27 +250,41 @@ namespace Voices.Core
             overlay.Show();
             ShowVoice(answers[index], false);
 
+            // Without a timer (intro day) the question waits until the player answers.
+            bool timed = timerOn;
+            overlay.SetTimerVisible(timed);
             float total = step.time > 0f ? step.time : defaultQuestionSeconds;
             float left = total;
             float nextTick = 0f;
             Answer chosen = null;
             int chosenIndex = -1;
 
-            while (left > 0f)
+            while (!timed || left > 0f)
             {
-                left -= Time.deltaTime;
-                float fraction = Mathf.Clamp01(left / total);
-                overlay.SetTimer(fraction);
-
-                nextTick -= Time.deltaTime;
-                if (nextTick <= 0f)
+                if (timed)
                 {
-                    sfx.Tick(fraction);
-                    nextTick = Mathf.Lerp(0.22f, 1f, fraction);
+                    left -= Time.deltaTime;
+                    float fraction = Mathf.Clamp01(left / total);
+                    overlay.SetTimer(fraction);
+
+                    if (sounds && sounds.HasHeartbeat)
+                    {
+                        sounds.UpdateHeartbeat(left);
+                    }
+                    else
+                    {
+                        nextTick -= Time.deltaTime;
+                        if (nextTick <= 0f)
+                        {
+                            sfx.Tick(fraction);
+                            nextTick = Mathf.Lerp(0.22f, 1f, fraction);
+                        }
+                    }
                 }
 
                 if (ShiftPressed())
                 {
+                    shiftUsed = true;
                     index = (index + 1) % answers.Length;
                     ShowVoice(answers[index], true);
                 }
@@ -265,8 +294,11 @@ namespace Voices.Core
                     chosenIndex = index;
                     break;
                 }
+                // On screen from the moment the voices open, until the player has shifted once.
+                overlay.SetShiftHint(!shiftUsed);
                 yield return null;
             }
+            if (sounds) sounds.StopHeartbeat();
             yield return null;
             overlay.Hide();
 
@@ -290,7 +322,9 @@ namespace Voices.Core
         {
             faceById.TryGetValue(answer.voice, out var face);
             overlay.SetVoice(VoiceName(answer.voice), face, answer.text, glitch);
-            if (glitch) sfx.Glitch();
+            if (!glitch) return;
+            if (sounds && sounds.shift) sounds.PlayShift();
+            else sfx.Glitch();
         }
 
         string VoiceName(string id) => voiceNames.TryGetValue(id, out var n) ? n : id.ToUpperInvariant();

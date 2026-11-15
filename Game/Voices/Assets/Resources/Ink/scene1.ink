@@ -12,6 +12,7 @@ VAR player_name = "Patient"
 === start ===
 # scene: you wake up inside a padded cell...
 # event: fade_in
+# timer: off
 
 playerthoughts: where am I? how did I get here?
 
