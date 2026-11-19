@@ -207,35 +207,33 @@ Doctor: Spoken line.      Sprecher: Konvention, kein Ink-Befehl
 (function () {
   const $ = (id) => document.getElementById(id);
   const KEY = 'ink-unterwegs-v2';
-  const SAMPLE = `// Beispiel: einfach überschreiben.
-VAR meds = false
-VAR trust = 0
-
--> waiting_room
-
-=== waiting_room ===
-# scene: waiting room
-The young doctor looks up from her notes.
-Doctor: How are you feeling today?
-
-* [Fine, thanks.]
-    ~ trust = trust + 1
-    Doctor: I'm glad to hear that.
-    -> exam
-* [I can barely hear you.]
-    ~ meds = true
-    Doctor: I'll speak a little louder.
-    -> exam
-* [Say nothing.]
-    She waits. The clock ticks.
-    -> exam
-
-=== exam ===
-{meds: Her voice sounds muffled, as if through water.|Her voice is clear.}
-{trust > 0: She smiles briefly.}
-Doctor: Let's begin.
--> END
+  // Startblock mit allen Zählern, den jede neue Datei bekommt.
+  const START_BLOCK = 'VAR player_name = "Patient"\nVAR report_head = 0\nVAR report_old = 0\nVAR report_young = 0\nVAR clues = 0\n';
+  // Beispiel-Frage ohne echten Text: nur die Struktur mit +1 / −1 / ±0.
+  function question(v) {
+    return 'Doctor: {question}\n'
+      + '* [{answer_plus} (+1)]\n    ~ ' + v + ' += 1\n    Doctor: {reaction}\n    -> {target}\n'
+      + '* [{answer_minus} (−1)]\n    ~ ' + v + ' -= 1\n    Doctor: {reaction}\n    -> {target}\n'
+      + '* [{answer_neutral} (±0)]\n    Doctor: {reaction}\n    -> {target}\n';
+  }
+  // Beispiel-Frage als lauffähige Vorlage (Platzhalter in GROSSBUCHSTABEN).
+  const EXAMPLE_Q = `// ---- Beispiel-Frage: Texte ersetzen, Zählung bleibt ----
+Doctor: FRAGE?
+* [ANTWORT A (+1)]
+    ~ report_young += 1
+    Doctor: REAKTION A
+    -> weiter
+* [ANTWORT B (−1)]
+    ~ report_young -= 1
+    Doctor: REAKTION B
+    -> weiter
+* [ANTWORT C (±0)]
+    Doctor: REAKTION C
+    -> weiter
 `;
+  const NEW_FILE = START_BLOCK + '\n-> start\n\n=== start ===\n' + EXAMPLE_Q
+    + '\n=== weiter ===\nreport_young = {report_young}\n-> END\n';
+  const SAMPLE = NEW_FILE;
   const newId = () => 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
   // ---------- Lokaler Speicher (Cache, funktioniert auch offline) ----------
@@ -350,7 +348,12 @@ Doctor: Let's begin.
   ];
   // Für dieses Spiel: Bewertung pro Arzt, Clues und die Abzweigung zu den Enden.
   const GAME_SNIPPETS = [
-    ['Startblock',  'VAR report_head = 0\nVAR report_old = 0\nVAR report_young = 0\nVAR clues = 0\n'],
+    ['Name',        '{player_name}'],
+    ['Name eingeben', ' # input: name'],
+    ['Startblock',  START_BLOCK],
+    ['Frage Hauptarzt', question('report_head')],
+    ['Frage Alter',     question('report_old')],
+    ['Frage Ärztin',    question('report_young')],
     ['Hauptarzt +', '~ report_head += 1\n'],
     ['Hauptarzt −', '~ report_head -= 1\n'],
     ['Alter +',     '~ report_old += 1\n'],
@@ -375,9 +378,10 @@ Doctor: Let's begin.
     }
     // Platzhalter {name} -> name, ersten merken.
     let selStart = -1, selEnd = -1;
-    text = text.replace(/\{([a-z_]+)\}/g, (m, name, off, full) => {
+    // {player_name} ist echtes Ink, kein Platzhalter.
+    text = text.replace(/\{(?!player_name\})([a-z_]+)\}/g, (m, name, off, full) => {
       if (selStart < 0) {
-        const consumed = full.slice(0, off).replace(/\{([a-z_]+)\}/g, '$1').length;
+        const consumed = full.slice(0, off).replace(/\{(?!player_name\})([a-z_]+)\}/g, '$1').length;
         selStart = consumed; selEnd = consumed + name.length;
       }
       return name;
@@ -456,10 +460,20 @@ Doctor: Let's begin.
       } else {
         p('end', '— END —');
       }
+      showCounts();
     } catch (e) {
       p('end', 'Laufzeitfehler: ' + (e && e.message || e));
     }
     $('play').scrollTop = $('play').scrollHeight;
+  }
+
+  // Zähler live in der Vorschau-Leiste zeigen.
+  function showCounts() {
+    const vs = story && story.variablesState; if (!vs) return;
+    const names = [['report_head', 'Hauptarzt'], ['report_old', 'Alter'], ['report_young', 'Ärztin'], ['clues', 'Clues']];
+    const parts = names.filter(([k]) => vs.GlobalVariableExistsWithName && vs.GlobalVariableExistsWithName(k))
+      .map(([k, l]) => { const v = vs[k]; return l + ' ' + (v > 0 ? '+' + v : v); });
+    playInfo.textContent = cur().name + (parts.length ? ' · ' + parts.join(' · ') : '');
   }
 
   function restart() {
@@ -491,7 +505,7 @@ Doctor: Let's begin.
     const n = normName(await ask('Name der neuen Datei', 'szene.ink', true));
     if (!n) return;
     const id = newId();
-    store.files[id] = { name: n, text: '-> start\n\n=== start ===\n\n-> END\n', updated: Date.now() };
+    store.files[id] = { name: n, text: NEW_FILE, updated: Date.now() };
     store.current = id; touch(id); refreshFiles(); compile();
   };
   $('btnRename').onclick = async () => {
