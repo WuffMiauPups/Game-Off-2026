@@ -2,6 +2,7 @@
 // Conventions read by SessionController:
 //   "Name: text"        -> speaker + line (playerthoughts / description = narration)
 //   "* [Voice: text]"   -> an answer spoken by that voice (cycle with Shift)
+//   Voices: Paranoid, Narcissistic, Anxious, Yes-Man
 //   # event: fade_in | doctors_enter
 //   # input: name       -> player types a name (TODO in Unity)
 
@@ -24,15 +25,11 @@ Doctor 1: Ah, you are awake. the sedative didnt work as long as we hoped for.
 
 * [Paranoid: What? Why am I here? why am i getting sedated?]
     -> Answer1Scene1
-* [Aggressive: Let me go! why am I here? i will rip your head off]
+* [Narcissistic: injecting me with this should be a felony]
     -> Answer1Scene1
-* [Childlike: please! this is a mistake! im not supposed to be here!]
+* [Anxious: please! this is a mistake! im not supposed to be here!]
     -> Answer1Scene1
 * [Yes-Man: Yes right... a sedative for me. why again did i get that?]
-    -> Answer1Scene1
-* [Empathic: of course, people like me need sedatives!]
-    -> Answer1Scene1
-* [Asshole: injecting me with this should be a felony]
     -> Answer1Scene1
 
 === Answer1Scene1 ===
@@ -53,15 +50,11 @@ Doctor 2: And you confirm that is your real name?
 
 * [Paranoid: No. Why should i tell you my real name?]
     -> Answer2Scene1
-* [Aggressive: Shut up.]
+* [Narcissistic: got your ears blocked by shit?]
     -> Answer2Scene1
-* [Childlike: Yes! im not lying! why should i lie?]
+* [Anxious: Yes! im not lying! why should i lie?]
     -> Answer2Scene1
 * [Yes-Man: Yes! Yes! That is my name!]
-    -> Answer2Scene1
-* [Empathic: why? is it important? don't you have my name already?]
-    -> Answer2Scene1
-* [Asshole: got your ears blocked by shit?]
     -> Answer2Scene1
 
 === Answer2Scene1 ===
