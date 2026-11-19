@@ -1,4 +1,4 @@
-// Scene 1 – first playable. Written for the Voices prototype.
+// Intro scene – first playable. Written for the Voices prototype.
 // Conventions read by SessionController:
 //   "Name: text"        -> speaker + line (playerthoughts / description = narration)
 //   "* [Voice: text]"   -> an answer spoken by that voice (cycle with Shift)
@@ -24,15 +24,15 @@ description: there is a gray table in front of me with a bottle of pills... im s
 Doctor 1: Ah, you are awake. the sedative didnt work as long as we hoped for.
 
 * [Paranoid: What? Why am I here? why am i getting sedated?]
-    -> Answer1Scene1
+    -> Answer1Intro
 * [Narcissistic: injecting me with this should be a felony]
-    -> Answer1Scene1
+    -> Answer1Intro
 * [Anxious: please! this is a mistake! im not supposed to be here!]
-    -> Answer1Scene1
+    -> Answer1Intro
 * [Yes-Man: Yes right... a sedative for me. why again did i get that?]
-    -> Answer1Scene1
+    -> Answer1Intro
 
-=== Answer1Scene1 ===
+=== Answer1Intro ===
 
 Doctor 1: Well you are still under its effects, so your current answer is not yet noted.
 Doctor 2: It should be, (Doctor 1), the effects do not hide the truth.
@@ -44,20 +44,20 @@ Doctor 1: Well, Patient, can you state your name?
 
 Doctor 2: And you confirm that is your real name?
 
--> Question2Scene1
+-> Question2Intro
 
-=== Question2Scene1 ===
+=== Question2Intro ===
 
 * [Paranoid: No. Why should i tell you my real name?]
-    -> Answer2Scene1
+    -> Answer2Intro
 * [Narcissistic: got your ears blocked by shit?]
-    -> Answer2Scene1
+    -> Answer2Intro
 * [Anxious: Yes! im not lying! why should i lie?]
-    -> Answer2Scene1
+    -> Answer2Intro
 * [Yes-Man: Yes! Yes! That is my name!]
-    -> Answer2Scene1
+    -> Answer2Intro
 
-=== Answer2Scene1 ===
+=== Answer2Intro ===
 
 Doctor 3: Well, EVERY Answer you state has an Impact on how we different Doctors view you personally. We all can then influence reports. This leads to different outcomes of this procedure here with you.
 Doctor 2: And don't play smart on us! We are not allowed to show reactions (looks at Doctor 3) although some of us might struggle depending on the answer...

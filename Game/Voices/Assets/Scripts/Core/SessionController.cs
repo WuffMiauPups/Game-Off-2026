@@ -13,7 +13,7 @@ namespace Voices.Core
     // Plays one session (one day) from an Ink story (preferred) or from the older JSON format:
     // lines, events and Shift-voice questions.
     //
-    // Ink conventions (see Assets/Resources/Ink/scene1.ink):
+    // Ink conventions (see Assets/Resources/Ink/introscene.ink):
     //   "Name: text"       speaker + line; "playerthoughts:" / "description:" are narration
     //   "* [Voice: text]"  one answer per voice, cycled with Shift; "Silence:" is taken on timeout
     //   # event: fade_in | doctors_enter
@@ -24,7 +24,7 @@ namespace Voices.Core
     // The end of the story (-> END) is the end of the day and plays the gong.
     public class SessionController : MonoBehaviour
     {
-        [Header("Data (Ink wins over JSON; empty = Resources/Ink/scene1)")]
+        [Header("Data (Ink wins over JSON; empty = Resources/Ink/introscene)")]
         public InkFile inkFile;
         public TextAsset sessionJson;
         public TextAsset voicesJson;
@@ -69,7 +69,7 @@ namespace Voices.Core
             foreach (var d in doctors) SetAlpha(d, 0f);
 
             // Ink integration 2.x imports .ink as an InkFile that holds the compiled JSON (no separate .json file).
-            var ink = inkFile ? inkFile : Resources.Load<InkFile>("Ink/scene1");
+            var ink = inkFile ? inkFile : Resources.Load<InkFile>("Ink/introscene");
             if (ink && ink.isCompiled)
             {
                 yield return RunInk(ink.storyJson);
