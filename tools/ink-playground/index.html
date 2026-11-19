@@ -209,28 +209,18 @@ Doctor: Spoken line.      Sprecher: Konvention, kein Ink-Befehl
   const KEY = 'ink-unterwegs-v2';
   // Startblock mit allen Zählern, den jede neue Datei bekommt.
   const START_BLOCK = 'VAR player_name = "Patient"\nVAR report_head = 0\nVAR report_old = 0\nVAR report_young = 0\nVAR clues = 0\n';
-  // Beispiel-Frage ohne echten Text: nur die Struktur mit +1 / −1 / ±0.
-  function question(v) {
-    return 'Doctor: {question}\n'
-      + '* [{answer_plus} (+1)]\n    ~ ' + v + ' += 1\n    Doctor: {reaction}\n    -> {target}\n'
-      + '* [{answer_minus} (−1)]\n    ~ ' + v + ' -= 1\n    Doctor: {reaction}\n    -> {target}\n'
-      + '* [{answer_neutral} (±0)]\n    Doctor: {reaction}\n    -> {target}\n';
+  // Die 4 Stimmen, mit denen der Spieler antwortet.
+  const VOICES = ['Paranoid', 'Narcissistic', 'Anxious', 'Yes-Man'];
+  // Beispiel-Frage ohne echten Text: jede Stimme mit Zählung pro Arzt (+1 / −1 / +0 anpassen).
+  function question(target) {
+    return 'Doctor 1: FRAGE?\n\n' + VOICES.map(v =>
+      '* [' + v + ': ANTWORT]\n'
+      + '    ~ report_head += 1\n'
+      + '    ~ report_old -= 1\n'
+      + '    ~ report_young += 0\n'
+      + '    -> ' + target + '\n').join('');
   }
-  // Beispiel-Frage als lauffähige Vorlage (Platzhalter in GROSSBUCHSTABEN).
-  const EXAMPLE_Q = `// ---- Beispiel-Frage: Texte ersetzen, Zählung bleibt ----
-Doctor: FRAGE?
-* [ANTWORT A (+1)]
-    ~ report_young += 1
-    Doctor: REAKTION A
-    -> weiter
-* [ANTWORT B (−1)]
-    ~ report_young -= 1
-    Doctor: REAKTION B
-    -> weiter
-* [ANTWORT C (±0)]
-    Doctor: REAKTION C
-    -> weiter
-`;
+  const EXAMPLE_Q = '// ---- Beispiel-Frage: Texte ersetzen, Zahlen pro Stimme anpassen (+1 / -1 / +0) ----\n' + question('weiter');
   const NEW_FILE = START_BLOCK + '\n-> start\n\n=== start ===\n' + EXAMPLE_Q
     + '\n=== weiter ===\nreport_young = {report_young}\n-> END\n';
   const SAMPLE = NEW_FILE;
@@ -351,9 +341,7 @@ Doctor: FRAGE?
     ['Name',        '{player_name}'],
     ['Name eingeben', ' # input: name'],
     ['Startblock',  START_BLOCK],
-    ['Frage Hauptarzt', question('report_head')],
-    ['Frage Alter',     question('report_old')],
-    ['Frage Ärztin',    question('report_young')],
+    ['Frage (4 Stimmen)', question('{target}')],
     ['Hauptarzt +', '~ report_head += 1\n'],
     ['Hauptarzt −', '~ report_head -= 1\n'],
     ['Alter +',     '~ report_old += 1\n'],
