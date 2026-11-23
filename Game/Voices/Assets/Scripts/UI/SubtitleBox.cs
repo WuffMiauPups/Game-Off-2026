@@ -11,6 +11,10 @@ namespace Voices.UI
         public GameObject continueHint;
         [Tooltip("Face of whoever is speaking. Hidden when the speaker has no face.")]
         public Image portrait;
+        [Tooltip("Box around the face, shown and hidden together with it")]
+        public GameObject portraitFrame;
+        [Tooltip("Face size: 1 pixel of the face image = this many UI units")]
+        public float portraitScale = 4f;
         [Tooltip("How far the text moves right while a face is shown")]
         public float portraitIndent = 190f;
 
@@ -29,6 +33,8 @@ namespace Voices.UI
             if (!portrait) return;
             portrait.sprite = face;
             portrait.enabled = face;
+            if (face) portrait.rectTransform.sizeDelta = face.rect.size * portraitScale;
+            if (portraitFrame) portraitFrame.SetActive(face);
             float indent = face ? portraitIndent : 0f;
             SetLeft(speaker.rectTransform, speakerLeft + indent);
             SetLeft(body.target.rectTransform, bodyLeft + indent);

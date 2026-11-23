@@ -42,7 +42,11 @@ namespace Voices.UI
             (show ? musicSlider.gameObject : startButton.gameObject).GetComponent<Selectable>().Select();
         }
 
-        public void StartGame() => SceneManager.LoadScene(firstScene);
+        public void StartGame()
+        {
+            Voices.Core.SessionController.NewGame();
+            SceneManager.LoadScene(firstScene);
+        }
 
         public void Quit()
         {

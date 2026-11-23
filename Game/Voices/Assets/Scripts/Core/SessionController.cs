@@ -26,7 +26,20 @@ namespace Voices.Core
     // The end of the story (-> END) is the end of the day: text goes away, gong, slow fade to black.
     public class SessionController : MonoBehaviour
     {
-        [Header("Data (Ink wins over JSON; empty = Resources/Ink/scene1)")]
+        // Days are played in order from Resources/Ink: scene1 (intro), then day1, day2, ... as long as a file exists.
+        // Ink variables (player_name, reports, clues) are carried from one day to the next.
+        static int dayIndex;
+        static readonly Dictionary<string, object> carried = new();
+
+        public static void NewGame()
+        {
+            dayIndex = 0;
+            carried.Clear();
+        }
+
+        static string DayResource(int index) => index == 0 ? "Ink/scene1" : "Ink/day" + index;
+
+        [Header("Data (Ink wins over JSON; empty = Resources/Ink/scene1, then day1, day2, ...)")]
         public InkFile inkFile;
         public TextAsset sessionJson;
         public TextAsset voicesJson;
@@ -94,7 +107,7 @@ namespace Voices.Core
             foreach (var d in doctors) SetAlpha(d, 0f);
 
             // Ink integration 2.x imports .ink as an InkFile that holds the compiled JSON (no separate .json file).
-            var ink = inkFile ? inkFile : Resources.Load<InkFile>("Ink/scene1");
+            var ink = dayIndex == 0 && inkFile ? inkFile : Resources.Load<InkFile>(DayResource(dayIndex));
             if (ink && ink.isCompiled)
             {
                 yield return RunInk(ink.storyJson);
@@ -127,6 +140,8 @@ namespace Voices.Core
         {
             var story = new Story(json);
             story.onError += (msg, type) => Debug.LogError($"Ink {type}: {msg}");
+            foreach (var pair in carried)
+                if (story.variablesState.GlobalVariableExistsWithName(pair.Key)) story.variablesState[pair.Key] = pair.Value;
 
             float nextQuestionSeconds = 0f;
             string pendingInput = null;
@@ -164,6 +179,8 @@ namespace Voices.Core
                     // A line directly followed by choices is the question: show it, then the answers.
                     bool isQuestion = !story.canContinue && story.currentChoices.Count > 0;
                     if (marker && !isQuestion) continue;
+                    // A day without "# event: fade_in" simply fades in before its first line.
+                    if (blackScreen.alpha > 0.99f) yield return FadeBlack(1f, 0f, fadeInSeconds);
                     if (isQuestion)
                     {
                         if (pendingInput != null) yield return RunInput(story, pendingInput);
@@ -177,7 +194,7 @@ namespace Voices.Core
 
                 if (story.currentChoices.Count == 0)
                 {
-                    yield return RunDayEnd();
+                    yield return RunDayEnd(story);
                     yield break;
                 }
 
@@ -222,8 +239,14 @@ namespace Voices.Core
             else Debug.LogWarning($"Ink has no variable '{variable}'. Add 'VAR {variable} = \"\"' at the top of the file.");
         }
 
-        IEnumerator RunDayEnd()
+        IEnumerator RunDayEnd(Story story)
         {
+            foreach (string name in story.variablesState)
+            {
+                object value = story.variablesState[name];
+                if (value is int || value is float || value is string || value is bool) carried[name] = value;
+            }
+
             subtitle.Hide();
             if (sounds) StartCoroutine(sounds.FadeOutMusic(dayEndPauseSeconds + dayEndFadeSeconds));
             yield return new WaitForSeconds(dayEndPauseSeconds);
@@ -235,7 +258,16 @@ namespace Voices.Core
             }
             blackScreen.alpha = 1f;
             yield return new WaitForSeconds(3f);
-            if (!string.IsNullOrEmpty(sceneAfterDay)) SceneManager.LoadScene(sceneAfterDay);
+            dayIndex++;
+            if (Resources.Load<InkFile>(DayResource(dayIndex)))
+            {
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            }
+            else
+            {
+                NewGame();
+                if (!string.IsNullOrEmpty(sceneAfterDay)) SceneManager.LoadScene(sceneAfterDay);
+            }
         }
 
         static (string key, string value) SplitTag(string tag)
