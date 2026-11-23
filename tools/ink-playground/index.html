@@ -350,7 +350,9 @@ Doctor: Let's begin.
   ];
   // Für dieses Spiel: Bewertung pro Arzt, Clues und die Abzweigung zu den Enden.
   const GAME_SNIPPETS = [
-    ['Startblock',  'VAR report_head = 0\nVAR report_old = 0\nVAR report_young = 0\nVAR clues = 0\n'],
+    ['Name',        '{player_name}'],
+    ['Name eingeben', ' # input: name'],
+    ['Startblock',  'VAR player_name = "Patient"\nVAR report_head = 0\nVAR report_old = 0\nVAR report_young = 0\nVAR clues = 0\n'],
     ['Hauptarzt +', '~ report_head += 1\n'],
     ['Hauptarzt −', '~ report_head -= 1\n'],
     ['Alter +',     '~ report_old += 1\n'],
@@ -375,9 +377,10 @@ Doctor: Let's begin.
     }
     // Platzhalter {name} -> name, ersten merken.
     let selStart = -1, selEnd = -1;
-    text = text.replace(/\{([a-z_]+)\}/g, (m, name, off, full) => {
+    // {player_name} ist echtes Ink, kein Platzhalter.
+    text = text.replace(/\{(?!player_name\})([a-z_]+)\}/g, (m, name, off, full) => {
       if (selStart < 0) {
-        const consumed = full.slice(0, off).replace(/\{([a-z_]+)\}/g, '$1').length;
+        const consumed = full.slice(0, off).replace(/\{(?!player_name\})([a-z_]+)\}/g, '$1').length;
         selStart = consumed; selEnd = consumed + name.length;
       }
       return name;
