@@ -4,6 +4,7 @@ using Ink.Runtime;
 using Ink.UnityIntegration;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using Voices.Audio;
 using Voices.Data;
 using Voices.UI;
@@ -17,11 +18,12 @@ namespace Voices.Core
     //   "Name: text"       speaker + line; "playerthoughts:" / "description:" are narration
     //   "* [Voice: text]"  one answer per voice, cycled with Shift; "Silence:" is taken on timeout
     //   # event: fade_in | doctors_enter
-    //   # input: name      player types a name (not built yet, logged)
+    //   # input: name      after this line the player types a name; saved in the Ink variable player_name,
+    //                      use it in text as {player_name}
     //   # time: 8          seconds for the next question
     //   # timer: off | on  questions from here on have no timer (intro day) / have one again
     //   # sfx: knock       plays sfx_knock; "sigh" picks one of the sfx_sigh_* sounds (see SoundPlayer)
-    // The end of the story (-> END) is the end of the day and plays the gong.
+    // The end of the story (-> END) is the end of the day: text goes away, gong, slow fade to black.
     public class SessionController : MonoBehaviour
     {
         [Header("Data (Ink wins over JSON; empty = Resources/Ink/scene1)")]
@@ -34,14 +36,37 @@ namespace Voices.Core
         public SubtitleBox subtitle;
         public ProceduralSfx sfx;
         public SoundPlayer sounds;
+        public NameInput nameInput;
         public CanvasGroup blackScreen;
         public SpriteRenderer[] doctors;
+
+        [System.Serializable]
+        public class Portrait
+        {
+            [Tooltip("Speaker name as written in Ink, e.g. HeadDoctor. Spaces and capitals don't matter.")]
+            public string speaker;
+            public Sprite face;
+        }
+
+        [Header("Faces shown next to the text while that person speaks")]
+        public Portrait[] portraits;
 
         [Header("Faces, named face_<voiceId> (empty = placeholder box)")]
         public Texture2D[] faces;
 
         [Header("Timing")]
-        public float fadeInSeconds = 2.5f;
+        [Tooltip("Screen stays black this long before waking up")]
+        public float blackHoldSeconds = 2f;
+        [Tooltip("Length of the final, full eye opening")]
+        public float fadeInSeconds = 3.5f;
+        [Tooltip("Typing speed of thoughts and descriptions (lines without a speaker)")]
+        public float thoughtCharsPerSecond = 16f;
+        [Tooltip("Pause between a doctor's question and the voices opening")]
+        public float questionPauseSeconds = 2f;
+        public float dayEndPauseSeconds = 2.5f;
+        public float dayEndFadeSeconds = 5f;
+        [Tooltip("Loaded after the day has faded out (until more days exist)")]
+        public string sceneAfterDay = "MainMenu";
         public float doctorFadeSeconds = 1f;
         public float defaultQuestionSeconds = 15f;
 
@@ -104,6 +129,8 @@ namespace Voices.Core
             story.onError += (msg, type) => Debug.LogError($"Ink {type}: {msg}");
 
             float nextQuestionSeconds = 0f;
+            string pendingInput = null;
+            bool questionShown = false;
             string lastSpeaker = "";
             string lastText = "";
 
@@ -121,23 +148,36 @@ namespace Voices.Core
                             case "time": float.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out nextQuestionSeconds); break;
                             case "timer": timerOn = !value.Equals("off", System.StringComparison.OrdinalIgnoreCase); break;
                             case "sfx": if (sounds) sounds.Play(value); break;
-                            case "input": Debug.LogWarning($"Ink tag '# input: {value}' is not implemented yet, skipping."); break;
+                            case "input": pendingInput = value; break;
                             case "scene": break; // author's note, nothing to show
                             default: Debug.Log($"Ink tag ignored: {tag}"); break;
                         }
                     }
                     if (raw.Length == 0) continue;
 
-                    SplitSpeaker(raw, out lastSpeaker, out lastText);
+                    // "(Choice)" is the author's marker above the answers. The question is the line before it,
+                    // which is already on screen.
+                    bool marker = raw.Equals("(Choice)", System.StringComparison.OrdinalIgnoreCase);
+                    if (marker && story.canContinue) continue;
+                    questionShown = marker;
+                    if (!marker) SplitSpeaker(raw, out lastSpeaker, out lastText);
                     // A line directly followed by choices is the question: show it, then the answers.
                     bool isQuestion = !story.canContinue && story.currentChoices.Count > 0;
-                    if (isQuestion) break;
-                    yield return RunLine(lastSpeaker, lastText);
+                    if (marker && !isQuestion) continue;
+                    if (isQuestion)
+                    {
+                        if (pendingInput != null) yield return RunInput(story, pendingInput);
+                        pendingInput = null;
+                        break;
+                    }
+                    yield return RunLine(lastSpeaker, lastText, pendingInput == null);
+                    if (pendingInput != null) yield return RunInput(story, pendingInput);
+                    pendingInput = null;
                 }
 
                 if (story.currentChoices.Count == 0)
                 {
-                    if (sounds) sounds.PlayDayEnd();
+                    yield return RunDayEnd();
                     yield break;
                 }
 
@@ -151,7 +191,8 @@ namespace Voices.Core
                 var step = new Step { speaker = lastSpeaker, text = lastText, answers = answers, time = nextQuestionSeconds };
                 nextQuestionSeconds = 0f;
                 int chosenIndex = -1;
-                yield return RunQuestion(step, i => chosenIndex = i);
+                yield return RunQuestion(step, i => chosenIndex = i, questionShown);
+                questionShown = false;
 
                 if (chosenIndex < 0)
                 {
@@ -161,6 +202,40 @@ namespace Voices.Core
                 }
                 story.ChooseChoiceIndex(chosenIndex);
             }
+        }
+
+        // The player types into the name field; the result goes into an Ink variable.
+        IEnumerator RunInput(Story story, string what)
+        {
+            string variable = what == "name" ? "player_name" : what;
+            if (!nameInput)
+            {
+                Debug.LogWarning("SessionController: no NameInput assigned, skipping '# input'.");
+                yield break;
+            }
+            subtitle.SetHint(false);
+            nameInput.Open();
+            while (!nameInput.Done) yield return null;
+            nameInput.Close();
+            yield return null;
+            if (story.variablesState.GlobalVariableExistsWithName(variable)) story.variablesState[variable] = nameInput.Value;
+            else Debug.LogWarning($"Ink has no variable '{variable}'. Add 'VAR {variable} = \"\"' at the top of the file.");
+        }
+
+        IEnumerator RunDayEnd()
+        {
+            subtitle.Hide();
+            if (sounds) StartCoroutine(sounds.FadeOutMusic(dayEndPauseSeconds + dayEndFadeSeconds));
+            yield return new WaitForSeconds(dayEndPauseSeconds);
+            if (sounds) sounds.PlayDayEnd();
+            for (float t = 0f; t < dayEndFadeSeconds; t += Time.deltaTime)
+            {
+                blackScreen.alpha = Mathf.SmoothStep(0f, 1f, t / dayEndFadeSeconds);
+                yield return null;
+            }
+            blackScreen.alpha = 1f;
+            yield return new WaitForSeconds(3f);
+            if (!string.IsNullOrEmpty(sceneAfterDay)) SceneManager.LoadScene(sceneAfterDay);
         }
 
         static (string key, string value) SplitTag(string tag)
@@ -208,12 +283,13 @@ namespace Voices.Core
             switch (eventName)
             {
                 case "fade_in":
-                    for (float t = 0f; t < fadeInSeconds; t += Time.deltaTime)
-                    {
-                        blackScreen.alpha = 1f - t / fadeInSeconds;
-                        yield return null;
-                    }
-                    blackScreen.alpha = 0f;
+                    // Waking up: black for a moment, one heavy blink, then the eyes stay open.
+                    blackScreen.alpha = 1f;
+                    yield return new WaitForSeconds(blackHoldSeconds);
+                    yield return FadeBlack(1f, 0.4f, 1.6f);
+                    yield return FadeBlack(0.4f, 1f, 0.7f);
+                    yield return new WaitForSeconds(0.5f);
+                    yield return FadeBlack(1f, 0f, fadeInSeconds);
                     break;
                 case "doctors_enter":
                     for (float t = 0f; t < doctorFadeSeconds; t += Time.deltaTime)
@@ -229,21 +305,50 @@ namespace Voices.Core
             }
         }
 
-        IEnumerator RunLine(string speaker, string text)
+        IEnumerator FadeBlack(float from, float to, float seconds)
+        {
+            for (float t = 0f; t < seconds; t += Time.deltaTime)
+            {
+                blackScreen.alpha = Mathf.Lerp(from, to, Mathf.SmoothStep(0f, 1f, t / seconds));
+                yield return null;
+            }
+            blackScreen.alpha = to;
+        }
+
+        // Thoughts and descriptions (no speaker) type more slowly than spoken lines.
+        // "Head Doctor", "HeadDoctor" and "HEADDOCTOR (whispers)" all find the same face.
+        Sprite FaceFor(string speaker)
+        {
+            if (portraits == null || string.IsNullOrEmpty(speaker)) return null;
+            string id = VoiceId(speaker);
+            foreach (var p in portraits)
+                if (p.face && !string.IsNullOrEmpty(p.speaker) && id.StartsWith(VoiceId(p.speaker))) return p.face;
+            return null;
+        }
+
+        float SpeedFor(string speaker) => string.IsNullOrEmpty(speaker) ? thoughtCharsPerSecond : 0f;
+
+        IEnumerator RunLine(string speaker, string text, bool waitForConfirm = true)
         {
             subtitle.Show();
-            subtitle.Play(speaker, text);
+            subtitle.Play(speaker, text, SpeedFor(speaker), FaceFor(speaker));
             yield return WaitTyping(subtitle.body);
+            if (!waitForConfirm) yield break;
             subtitle.SetHint(true);
             yield return WaitConfirm();
             subtitle.SetHint(false);
         }
 
-        IEnumerator RunQuestion(Step step, System.Action<int> onChosen = null)
+        IEnumerator RunQuestion(Step step, System.Action<int> onChosen = null, bool alreadyShown = false)
         {
             subtitle.Show();
-            subtitle.Play(step.speaker, step.text);
-            yield return WaitTyping(subtitle.body);
+            if (!alreadyShown)
+            {
+                subtitle.Play(step.speaker, step.text, SpeedFor(step.speaker), FaceFor(step.speaker));
+                yield return WaitTyping(subtitle.body);
+            }
+            // Let the question sink in before the voices open.
+            yield return new WaitForSeconds(questionPauseSeconds);
 
             var answers = step.answers;
             int index = 0;

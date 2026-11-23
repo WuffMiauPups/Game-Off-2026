@@ -57,20 +57,20 @@ namespace Voices.Audio
         public void Tick(float timeLeftFraction)
         {
             timerSource.pitch = Mathf.Lerp(1.5f, 1f, timeLeftFraction);
-            timerSource.PlayOneShot(tick, tickVolume * Mathf.Lerp(1f, 0.5f, timeLeftFraction));
+            timerSource.PlayOneShot(tick, tickVolume * GameVolume.Sounds * Mathf.Lerp(1f, 0.5f, timeLeftFraction));
         }
 
         public void Blip(char c, float pitch)
         {
             if (char.IsWhiteSpace(c)) return;
             voiceSource.pitch = pitch * Random.Range(0.85f, 1.15f);
-            voiceSource.PlayOneShot(blip, blipVolume);
+            voiceSource.PlayOneShot(blip, blipVolume * GameVolume.Sounds);
         }
 
         public void Glitch()
         {
             voiceSource.pitch = 1f;
-            voiceSource.PlayOneShot(glitch, glitchVolume);
+            voiceSource.PlayOneShot(glitch, glitchVolume * GameVolume.Sounds);
         }
     }
 }
