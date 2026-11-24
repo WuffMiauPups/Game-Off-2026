@@ -456,12 +456,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: c38234a7308260147bccf684aec1cc4d, type: 3}
-    m_FontSize: 75
+    m_Font: {fileID: 12800000, guid: 005c9f85a78d0824ca6287120fbc4a11, type: 3}
+    m_FontSize: 96
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 75
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -818,12 +818,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: c38234a7308260147bccf684aec1cc4d, type: 3}
-    m_FontSize: 50
+    m_Font: {fileID: 12800000, guid: 005c9f85a78d0824ca6287120fbc4a11, type: 3}
+    m_FontSize: 48
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 50
     m_Alignment: 5
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -972,12 +972,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: c38234a7308260147bccf684aec1cc4d, type: 3}
-    m_FontSize: 75
+    m_Font: {fileID: 12800000, guid: 005c9f85a78d0824ca6287120fbc4a11, type: 3}
+    m_FontSize: 96
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 75
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -1215,12 +1215,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 944bcca56cf65fc41a830b485f007e1f, type: 3}
+    m_Font: {fileID: 12800000, guid: c2431f1a7bef2574b8bacc4ec5cdd8c0, type: 3}
     m_FontSize: 144
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 120
+    m_MaxSize: 144
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -1429,12 +1429,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: c38234a7308260147bccf684aec1cc4d, type: 3}
-    m_FontSize: 50
+    m_Font: {fileID: 12800000, guid: 005c9f85a78d0824ca6287120fbc4a11, type: 3}
+    m_FontSize: 48
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 50
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -1760,12 +1760,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: c38234a7308260147bccf684aec1cc4d, type: 3}
-    m_FontSize: 50
+    m_Font: {fileID: 12800000, guid: 005c9f85a78d0824ca6287120fbc4a11, type: 3}
+    m_FontSize: 48
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 50
     m_Alignment: 5
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -1915,8 +1915,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Voices.UI.PixelFonts
   fonts:
-  - {fileID: 12800000, guid: c38234a7308260147bccf684aec1cc4d, type: 3}
-  - {fileID: 12800000, guid: 944bcca56cf65fc41a830b485f007e1f, type: 3}
+  - {fileID: 12800000, guid: 005c9f85a78d0824ca6287120fbc4a11, type: 3}
+  - {fileID: 12800000, guid: c2431f1a7bef2574b8bacc4ec5cdd8c0, type: 3}
 --- !u!1 &1297352829
 GameObject:
   m_ObjectHideFlags: 0
@@ -2090,12 +2090,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: c38234a7308260147bccf684aec1cc4d, type: 3}
-    m_FontSize: 75
+    m_Font: {fileID: 12800000, guid: 005c9f85a78d0824ca6287120fbc4a11, type: 3}
+    m_FontSize: 96
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 75
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -3059,12 +3059,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: c38234a7308260147bccf684aec1cc4d, type: 3}
-    m_FontSize: 75
+    m_Font: {fileID: 12800000, guid: 005c9f85a78d0824ca6287120fbc4a11, type: 3}
+    m_FontSize: 96
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 75
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: c38234a7308260147bccf684aec1cc4d
+guid: 005c9f85a78d0824ca6287120fbc4a11
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - VT323
+  - Pixel Operator
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 2

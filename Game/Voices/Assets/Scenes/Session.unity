@@ -177,12 +177,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: c38234a7308260147bccf684aec1cc4d, type: 3}
-    m_FontSize: 50
+    m_Font: {fileID: 12800000, guid: 005c9f85a78d0824ca6287120fbc4a11, type: 3}
+    m_FontSize: 48
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 50
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -453,12 +453,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: c38234a7308260147bccf684aec1cc4d, type: 3}
-    m_FontSize: 50
+    m_Font: {fileID: 12800000, guid: 005c9f85a78d0824ca6287120fbc4a11, type: 3}
+    m_FontSize: 48
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 50
     m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -547,12 +547,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: c38234a7308260147bccf684aec1cc4d, type: 3}
-    m_FontSize: 75
+    m_Font: {fileID: 12800000, guid: 005c9f85a78d0824ca6287120fbc4a11, type: 3}
+    m_FontSize: 96
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 46
+    m_MaxSize: 96
     m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -635,12 +635,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 944bcca56cf65fc41a830b485f007e1f, type: 3}
+    m_Font: {fileID: 12800000, guid: c2431f1a7bef2574b8bacc4ec5cdd8c0, type: 3}
     m_FontSize: 144
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 120
+    m_MaxSize: 144
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -1027,12 +1027,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 944bcca56cf65fc41a830b485f007e1f, type: 3}
+    m_Font: {fileID: 12800000, guid: c2431f1a7bef2574b8bacc4ec5cdd8c0, type: 3}
     m_FontSize: 48
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 48
     m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -2166,7 +2166,6 @@ GameObject:
   - component: {fileID: 812947598}
   - component: {fileID: 812947597}
   - component: {fileID: 812947596}
-  - component: {fileID: 812947595}
   - component: {fileID: 812947599}
   m_Layer: 0
   m_Name: Subtitle
@@ -2196,23 +2195,8 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 0, y: 42}
-  m_SizeDelta: {x: -156, y: 222}
+  m_SizeDelta: {x: -144, y: 222}
   m_Pivot: {x: 0.5, y: 0}
---- !u!114 &812947595
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 812947593}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.2784314, g: 0.25490198, b: 0.25490198, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
-  m_UseGraphicAlpha: 1
 --- !u!114 &812947596
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2226,14 +2210,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.019607844, g: 0.019607844, b: 0.019607844, a: 0.88}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: -5598787375966382603, guid: 3063a4e75894282438f9676921d93fa7, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2479,12 +2463,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: c38234a7308260147bccf684aec1cc4d, type: 3}
-    m_FontSize: 75
+    m_Font: {fileID: 12800000, guid: 005c9f85a78d0824ca6287120fbc4a11, type: 3}
+    m_FontSize: 96
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 54
+    m_MaxSize: 96
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -3398,7 +3382,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
   m_UiScaleMode: 0
   m_ReferencePixelsPerUnit: 100
-  m_ScaleFactor: 0.16666667
+  m_ScaleFactor: 0.6666667
   m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0.5
@@ -3459,8 +3443,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Voices.UI.PixelFonts
   fonts:
-  - {fileID: 12800000, guid: c38234a7308260147bccf684aec1cc4d, type: 3}
-  - {fileID: 12800000, guid: 944bcca56cf65fc41a830b485f007e1f, type: 3}
+  - {fileID: 12800000, guid: 005c9f85a78d0824ca6287120fbc4a11, type: 3}
+  - {fileID: 12800000, guid: c2431f1a7bef2574b8bacc4ec5cdd8c0, type: 3}
 --- !u!1 &1506285065
 GameObject:
   m_ObjectHideFlags: 0
@@ -3519,12 +3503,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: c38234a7308260147bccf684aec1cc4d, type: 3}
-    m_FontSize: 50
+    m_Font: {fileID: 12800000, guid: 005c9f85a78d0824ca6287120fbc4a11, type: 3}
+    m_FontSize: 48
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 50
     m_Alignment: 8
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -4381,12 +4365,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: c38234a7308260147bccf684aec1cc4d, type: 3}
-    m_FontSize: 50
+    m_Font: {fileID: 12800000, guid: 005c9f85a78d0824ca6287120fbc4a11, type: 3}
+    m_FontSize: 48
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 50
     m_Alignment: 3
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -4460,12 +4444,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: c38234a7308260147bccf684aec1cc4d, type: 3}
-    m_FontSize: 50
+    m_Font: {fileID: 12800000, guid: 005c9f85a78d0824ca6287120fbc4a11, type: 3}
+    m_FontSize: 48
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 50
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -4865,12 +4849,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 944bcca56cf65fc41a830b485f007e1f, type: 3}
+    m_Font: {fileID: 12800000, guid: c2431f1a7bef2574b8bacc4ec5cdd8c0, type: 3}
     m_FontSize: 48
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 40
+    m_MaxSize: 48
     m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -4951,6 +4935,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Voices.UI.VoiceOverlay
   group: {fileID: 2113931394}
   face: {fileID: 586229160}
+  faceLabel: {fileID: 0}
   voiceName: {fileID: 455698397}
   answer: {fileID: 252511845}
   shiftHint: {fileID: 1900000013}

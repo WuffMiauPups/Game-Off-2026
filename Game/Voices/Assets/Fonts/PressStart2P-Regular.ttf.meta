@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 944bcca56cf65fc41a830b485f007e1f
+guid: c2431f1a7bef2574b8bacc4ec5cdd8c0
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Silkscreen
+  - Press Start 2P
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 2

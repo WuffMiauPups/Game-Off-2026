@@ -8,8 +8,8 @@ Im Spiel wird alles ganzzahlig vergrößert (6-fach bei 1080p), zusammen mit dem
 
 | Feld | Größe | Position | Dateiname (Vorschlag) |
 |---|---|---|---|
-| Textbox unten | 294 × 37 | 13, 136 | `ui_textbox.png` |
-| Gesichts-Box (in der Textbox) | 28 × 35 | 14, 137 | `ui_faceframe.png` |
+| Textbox unten | 296 × 37 | 12, 136 | `ui_textbox.png` |
+| Gesichts-Box (in der Textbox) | 28 × 35 | 13, 137 | `ui_faceframe.png` |
 | Stimmen-Overlay | 250 × 94 | 35, 28 | `ui_voicepanel.png` |
 | Stimmen-Gesicht (im Overlay) | 80 × 80 | 42, 35 | `face_<stimme>.png` |
 | Timer-Balken (im Overlay) | 147 × 2 | 130, 113 | `ui_timer.png` |
@@ -22,10 +22,10 @@ Arzt-Gesichter: höchstens 28 × 35, damit sie in die Gesichts-Box passen. Aktue
 
 | Text | Bereich | Position |
 |---|---|---|
-| Sprechername (Textbox) | 281 × 7 | 20, 140 |
-| Gesprochener Text (Textbox) | 281 × 23 | 20, 148 |
-| Mit Gesicht rückt beides nach rechts auf | 256 breit | x 45 |
-| "[Space]"-Hinweis | 33 × 6 | 269, 164 |
+| Sprechername (Textbox) | 283 × 8 | 19, 138 |
+| Gesprochener Text (Textbox) | 283 × 25 | 19, 146 |
+| Mit Gesicht rückt beides nach rechts auf | 258 breit | x 44 |
+| "[Space]"-Hinweis | 33 × 6 | 270, 164 |
 | Name der Stimme (Overlay) | 147 × 8 | 130, 36 |
 | Antwort der Stimme (Overlay) | 147 × 57 | 130, 48 |
 | Shift-Hinweis (Overlay) | 147 × 7 | 130, 106 |
@@ -44,3 +44,14 @@ Arzt-Gesichter: höchstens 28 × 35, damit sie in die Gesichts-Box passen. Aktue
 | Options: Regler-Schiene | 94 × 2 | mittig im Regler |
 | Options: Regler-Griff | 4 × 8 | wandert auf der Schiene |
 | Options: Back | 60 × 14 | 130, 120 |
+
+## Schriften
+
+| Schrift | Wo | Größe |
+|---|---|---|
+| Press Start 2P | Sprechername, Name der Stimme | 8 Pixel hoch, 8 Pixel pro Buchstabe |
+| Press Start 2P | Titel, "DAY 1" | 24 Pixel hoch (3-fach) |
+| Pixel Operator | Text, Hinweise, Content-Warnung, Regler-Namen | Zeile 8 Pixel hoch (halbe Spielpixel) |
+| Pixel Operator | Antworten der Stimmen, Menü-Knöpfe, Namensfeld | Zeile 16 Pixel hoch (ganze Spielpixel) |
+
+Textbox: höchstens 3 Zeilen. Antwort der Stimme: höchstens 3 Zeilen.

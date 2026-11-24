@@ -77,7 +77,7 @@ namespace Voices.Core
         public Portrait[] portraits;
 
         [Header("Faces, named face_<voiceId> (empty = placeholder box)")]
-        public Texture2D[] faces;
+        public Sprite[] faces;
 
         [Header("Timing")]
         [Tooltip("Screen stays black this long before waking up")]
@@ -100,7 +100,7 @@ namespace Voices.Core
         readonly List<string> timerSounds = new();
         bool timerOn = true;
         readonly Dictionary<string, string> voiceNames = new();
-        readonly Dictionary<string, Texture2D> faceById = new();
+        readonly Dictionary<string, Sprite> faceById = new();
         readonly Dictionary<string, int> timesChosen = new();
 
         public IReadOnlyDictionary<string, int> TimesChosen => timesChosen;
