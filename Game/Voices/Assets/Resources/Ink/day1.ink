@@ -21,6 +21,8 @@ Head Doctor: Welcome {player_name}. This is the first consultation.
 
 Head Doctor: Lets begin. do you recall anything from october 1995?
 
+# sfx_timer: pentap
+
 (Choice)
 * [Paranoid: No, I dont know anything.]
     ~ report_head += 0
@@ -47,7 +49,6 @@ Head Doctor: Lets begin. do you recall anything from october 1995?
 
 === AnswerDay1_1 ===
 
-# sfx: pentap
 # sfx: writing
 
 -> QuestionDay1_2
@@ -55,6 +56,8 @@ Head Doctor: Lets begin. do you recall anything from october 1995?
 === QuestionDay1_2 ===
 
 OldDoctor: On that fateful day, there was a party from one of your classmates, was that a friend of yours?
+
+# sfx_timer: chair
 
 (Choice)
 * [Paranoid: No. Not a friend at all.]
@@ -83,13 +86,13 @@ OldDoctor: On that fateful day, there was a party from one of your classmates, w
 
 === AnswerDay1_2 ===
 
-OldDoctor: And you went to his parents house. 2 Story light blue house.
+OldDoctor: And you went to his parents house. According to your testimony it was a 2 story light blue house.
 
 -> QuestionDay1_3
 
 === QuestionDay1_3 ===
 
-YoungDoctor: In your testimony, you called Chloe your date for the night right?
+YoungDoctor: In your testimony, you called Chloe your date for the night. Is that correct?
 
 (Choice)
 * [Paranoid: Nope, just a classmate. Not a date]
@@ -98,7 +101,7 @@ YoungDoctor: In your testimony, you called Chloe your date for the night right?
     ~ report_young += 1
     -> AnswerDay1_3
 * [Narcissistic: Why? jealous? we had something going on]
-    ~ report_head -= 1
+    ~ report_head += 0
     ~ report_old -= 1
     ~ report_young += 2
     -> AnswerDay1_3
@@ -109,7 +112,7 @@ YoungDoctor: In your testimony, you called Chloe your date for the night right?
     -> AnswerDay1_3
 * [Yes-Man: Yes! my Date! Chloe was my Date that night.]
     ~ report_head -= 1
-    ~ report_old += 0
+    ~ report_old += 1
     ~ report_young -= 1
     -> AnswerDay1_3
 
@@ -122,13 +125,14 @@ YoungDoctor: In your testimony, you called Chloe your date for the night right?
 HeadDoctor: Sample goodbye for today.
 description: Sample description, guards bring me back to my cell.
 
-// Optional: Abzweigung je nach Bewertung
-{ report_head + report_old + report_young <= -3: -> BadBranchDayX }
+// Average of the three reports. Below -2: confined for all time.
+{ (report_head + report_old + report_young) / 3.0 < -2: -> BadBranchDayX }
 
 -> END
 
 === BadBranchDayX ===
 
+# game_over
 HeadDoctor: Sample line for a bad report.
 
 -> END

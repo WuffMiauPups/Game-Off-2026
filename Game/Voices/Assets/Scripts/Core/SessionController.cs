@@ -23,6 +23,9 @@ namespace Voices.Core
     //   # time: 8          seconds for the next question
     //   # timer: off | on  questions from here on have no timer (intro day) / have one again
     //   # sfx: knock       plays sfx_knock; "sigh" picks one of the sfx_sigh_* sounds (see SoundPlayer)
+    //   # sfx_timer: chair written above the answers: plays a few seconds after the voices open,
+    //                      only while the timer is running
+    //   # game_over        the game ends after this day (back to the menu) instead of going to the next day
     // The end of the story (-> END) is the end of the day: text goes away, gong, slow fade to black.
     public class SessionController : MonoBehaviour
     {
@@ -35,6 +38,7 @@ namespace Voices.Core
         {
             dayIndex = 0;
             carried.Clear();
+            SoundPlayer.NewGame();
         }
 
         static string DayResource(int index) => index == 0 ? "Ink/scene1" : "Ink/day" + index;
@@ -84,6 +88,8 @@ namespace Voices.Core
         public float defaultQuestionSeconds = 15f;
 
         bool shiftUsed;
+        bool gameOver;
+        readonly List<string> timerSounds = new();
         bool timerOn = true;
         readonly Dictionary<string, string> voiceNames = new();
         readonly Dictionary<string, Texture2D> faceById = new();
@@ -163,6 +169,8 @@ namespace Voices.Core
                             case "time": float.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out nextQuestionSeconds); break;
                             case "timer": timerOn = !value.Equals("off", System.StringComparison.OrdinalIgnoreCase); break;
                             case "sfx": if (sounds) sounds.Play(value); break;
+                            case "sfx_timer": timerSounds.Add(value); break;
+                            case "game_over": gameOver = true; break;
                             case "input": pendingInput = value; break;
                             case "scene": break; // author's note, nothing to show
                             default: Debug.Log($"Ink tag ignored: {tag}"); break;
@@ -248,7 +256,11 @@ namespace Voices.Core
             }
 
             subtitle.Hide();
-            if (sounds) StartCoroutine(sounds.FadeOutMusic(dayEndPauseSeconds + dayEndFadeSeconds));
+            if (sounds)
+            {
+                sounds.StopRandomSounds();
+                StartCoroutine(sounds.FadeOutMusic(dayEndPauseSeconds + dayEndFadeSeconds));
+            }
             yield return new WaitForSeconds(dayEndPauseSeconds);
             if (sounds) sounds.PlayDayEnd();
             for (float t = 0f; t < dayEndFadeSeconds; t += Time.deltaTime)
@@ -259,7 +271,7 @@ namespace Voices.Core
             blackScreen.alpha = 1f;
             yield return new WaitForSeconds(3f);
             dayIndex++;
-            if (Resources.Load<InkFile>(DayResource(dayIndex)))
+            if (!gameOver && Resources.Load<InkFile>(DayResource(dayIndex)))
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().name);
             }
@@ -395,6 +407,8 @@ namespace Voices.Core
             float nextTick = 0f;
             Answer chosen = null;
             int chosenIndex = -1;
+            Coroutine timerSfx = timed && sounds && timerSounds.Count > 0 ? StartCoroutine(PlayTimerSounds(timerSounds.ToArray())) : null;
+            timerSounds.Clear();
 
             while (!timed || left > 0f)
             {
@@ -436,6 +450,7 @@ namespace Voices.Core
                 yield return null;
             }
             if (sounds) sounds.StopHeartbeat();
+            if (timerSfx != null) StopCoroutine(timerSfx);
             yield return null;
             overlay.Hide();
 
@@ -452,6 +467,15 @@ namespace Voices.Core
             {
                 yield return RunLine("", "...");
                 if (!string.IsNullOrEmpty(step.timeoutReaction)) yield return RunLine("", step.timeoutReaction);
+            }
+        }
+
+        IEnumerator PlayTimerSounds(string[] names)
+        {
+            foreach (string name in names)
+            {
+                yield return new WaitForSeconds(Random.Range(2f, 4f));
+                sounds.Play(name);
             }
         }
 

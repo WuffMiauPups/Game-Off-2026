@@ -13,7 +13,22 @@ namespace Voices.Audio
         [Tooltip("Fades out when the day ends. Empty = the child object 'Music'.")]
         public AudioSource music;
         public AudioClip shift;
+        [Range(0f, 1f)] public float shiftVolume = 0.45f;
         public AudioClip dayEnd;
+
+        [Header("Random background sounds (rare)")]
+        [Tooltip("Played now and then on their own, never the same twice in a row")]
+        public AudioClip[] randomSounds;
+        [Tooltip("Like the random sounds, but each of these plays only one single time in the whole game")]
+        public AudioClip[] onceSounds;
+        [Tooltip("Shortest and longest wait between two random sounds, in seconds")]
+        public float randomMinSeconds = 35f;
+        public float randomMaxSeconds = 90f;
+        [Range(0f, 1f)] public float randomVolume = 0.5f;
+
+        [Header("Heartbeat timer")]
+        [Tooltip("The heartbeat is slowed down at most this far so it covers the whole timer. 1 = never slowed.")]
+        [Range(0.4f, 1f)] public float heartbeatMinPitch = 0.6f;
 
         [Tooltip("Sounds Ink can play with '# sfx: name'. 'knock' plays sfx_knock; 'sigh' picks one of the sfx_sigh_* sounds at random.")]
         public AudioClip[] library;
@@ -26,6 +41,36 @@ namespace Voices.Audio
         int next;
         int lastStep = -1;
         bool heartbeatStarted;
+        AudioClip lastRandom;
+        Coroutine randomLoop;
+        static readonly HashSet<string> oncePlayed = new();
+
+        public static void NewGame() => oncePlayed.Clear();
+
+        void Start() => randomLoop = StartCoroutine(RandomLoop());
+
+        public void StopRandomSounds()
+        {
+            if (randomLoop != null) StopCoroutine(randomLoop);
+            randomLoop = null;
+        }
+
+        IEnumerator RandomLoop()
+        {
+            while (true)
+            {
+                yield return new WaitForSeconds(Random.Range(randomMinSeconds, randomMaxSeconds));
+                var choices = new List<AudioClip>();
+                if (randomSounds != null)
+                    foreach (var c in randomSounds) if (c && c != lastRandom) choices.Add(c);
+                if (onceSounds != null)
+                    foreach (var c in onceSounds) if (c && !oncePlayed.Contains(c.name)) choices.Add(c);
+                if (choices.Count == 0) continue;
+                lastRandom = choices[Random.Range(0, choices.Count)];
+                oncePlayed.Add(lastRandom.name);
+                PlayClip(lastRandom, randomVolume);
+            }
+        }
 
         void Awake()
         {
@@ -45,13 +90,13 @@ namespace Voices.Audio
             }
         }
 
-        void PlayClip(AudioClip clip)
+        void PlayClip(AudioClip clip, float volume = 1f)
         {
             if (!clip) return;
             var src = pool[next];
             next = (next + 1) % pool.Count;
             src.clip = clip;
-            src.volume = oneShots.volume;
+            src.volume = oneShots.volume * volume;
             src.pitch = NextPitch();
             src.Play();
         }
@@ -78,7 +123,7 @@ namespace Voices.Audio
             music.volume = 0f;
         }
 
-        public void PlayShift() => PlayClip(shift);
+        public void PlayShift() => PlayClip(shift, shiftVolume);
 
         public void PlayDayEnd() => PlayClip(dayEnd);
 
@@ -109,14 +154,17 @@ namespace Voices.Audio
             if (heartbeat) heartbeat.Stop();
         }
 
-        // Starts the heartbeat late enough that its last, fastest beats land on the end of the timer.
+        // The heartbeat starts with the timer and is slowed down so its last, fastest beats land on the end.
+        // On a very long timer it waits until the slowest allowed speed fits; on a short one it skips ahead.
         public void UpdateHeartbeat(float secondsLeft)
         {
-            if (heartbeatStarted || !HasHeartbeat) return;
+            if (heartbeatStarted || !HasHeartbeat || secondsLeft <= 0f) return;
             float length = heartbeat.clip.length;
-            if (secondsLeft > length) return;
+            float pitch = length / secondsLeft;
+            if (pitch < heartbeatMinPitch) return;
+            heartbeat.pitch = Mathf.Min(pitch, 1f);
             heartbeat.Play();
-            heartbeat.time = Mathf.Clamp(length - secondsLeft, 0f, length - 0.05f);
+            heartbeat.time = pitch > 1f ? Mathf.Clamp(length - secondsLeft, 0f, length - 0.05f) : 0f;
             heartbeatStarted = true;
         }
     }
