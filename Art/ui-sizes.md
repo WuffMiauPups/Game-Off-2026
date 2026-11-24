@@ -49,9 +49,20 @@ Arzt-Gesichter: höchstens 28 × 35, damit sie in die Gesichts-Box passen. Aktue
 
 | Schrift | Wo | Größe |
 |---|---|---|
-| Press Start 2P | Sprechername, Name der Stimme | 8 Pixel hoch, 8 Pixel pro Buchstabe |
+| Press Start 2P | Name der Stimme (Overlay) | 8 Pixel hoch, 8 Pixel pro Buchstabe |
 | Press Start 2P | Titel, "DAY 1" | 24 Pixel hoch (3-fach) |
-| Pixel Operator | Text, Hinweise, Content-Warnung, Regler-Namen | Zeile 8 Pixel hoch (halbe Spielpixel) |
-| Pixel Operator | Antworten der Stimmen, Menü-Knöpfe, Namensfeld | Zeile 16 Pixel hoch (ganze Spielpixel) |
+| Pixel Operator Bold | Sprechername (Textbox) | Zeile 8 Pixel hoch (halbe Spielpixel) |
+| Pixel Operator | Text, Hinweise, Menü-Knöpfe, Namensfeld, Content-Warnung, Regler-Namen | Zeile 8 Pixel hoch (halbe Spielpixel) |
+| Pixel Operator | Antworten der Stimmen | Zeile 16 Pixel hoch (ganze Spielpixel) |
 
 Textbox: höchstens 3 Zeilen. Antwort der Stimme: höchstens 3 Zeilen.
+
+## Gezeichnete Rahmen (Stand der Dateien)
+
+| Datei | Rand | Freier Innenraum |
+|---|---|---|
+| `ui_textbox` 296 × 37 | 3 | 290 × 31 |
+| `ui_voicepanel` 250 × 94 | 6 | 238 × 82 |
+| `ui_namebox` 128 × 28 | 3 | 122 × 22 |
+| `ui_title` 234 × 30 | 2 | 230 × 26 |
+| `ui_start` / `ui_options` / `ui_quit` 60 × 14 | 2 | 56 × 10 |

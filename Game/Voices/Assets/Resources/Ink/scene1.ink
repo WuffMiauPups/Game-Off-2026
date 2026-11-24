@@ -29,7 +29,7 @@ Head Doctor: Ah, you are awake. the sedative didnt work as long as we hoped for.
 === Answer1Scene1 ===
 
 Head Doctor: Well you are still under its effects, so your current answer is not yet noted.
-Old Doctor: It should be, (Doctor 1), the effects do not hide the truth.
+Old Doctor: It should be, Head Doctor, the effects do not hide the truth.
 Young Doctor: The medication can interfere with the prefrontal cortex. I suggest today is not brought into the report.
 
 Head Doctor: Well, Patient, can you state your name? # input: name
@@ -61,6 +61,6 @@ Head Doctor: Well, i guess that's it for today. Thank you for coorporating. Tomo
 
 Old Doctor: (intervenes, and reads of the police report): We will find out why you listened to the "Voice" and what it told you.
 
-Young Doctor: until then, the guards will bring you into your living cell. See ya.
+Young Doctor: until then, the guards will bring you into your cell. 
 
 -> END
