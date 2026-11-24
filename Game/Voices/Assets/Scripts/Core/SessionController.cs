@@ -5,6 +5,7 @@ using Ink.UnityIntegration;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using Voices.Audio;
 using Voices.Data;
 using Voices.UI;
@@ -54,6 +55,13 @@ namespace Voices.Core
         public ProceduralSfx sfx;
         public SoundPlayer sounds;
         public NameInput nameInput;
+
+        [Header("Title card before each day (not before the intro)")]
+        public CanvasGroup dayCard;
+        public Text dayCardText;
+        [Tooltip("{0} is the day number")]
+        public string dayCardFormat = "DAY {0}";
+        public float dayCardSeconds = 2.5f;
         public CanvasGroup blackScreen;
         public SpriteRenderer[] doctors;
 
@@ -111,6 +119,9 @@ namespace Voices.Core
             subtitle.Hide();
             blackScreen.alpha = 1f;
             foreach (var d in doctors) SetAlpha(d, 0f);
+
+            if (dayCard) dayCard.alpha = 0f;
+            if (dayCard && dayIndex >= 1) yield return ShowDayCard();
 
             // Ink integration 2.x imports .ink as an InkFile that holds the compiled JSON (no separate .json file).
             var ink = dayIndex == 0 && inkFile ? inkFile : Resources.Load<InkFile>(DayResource(dayIndex));
@@ -245,6 +256,19 @@ namespace Voices.Core
             yield return null;
             if (story.variablesState.GlobalVariableExistsWithName(variable)) story.variablesState[variable] = nameInput.Value;
             else Debug.LogWarning($"Ink has no variable '{variable}'. Add 'VAR {variable} = \"\"' at the top of the file.");
+        }
+
+        // "DAY 1" on the black screen, then it fades away and the day begins.
+        IEnumerator ShowDayCard()
+        {
+            dayCardText.text = string.Format(dayCardFormat, dayIndex);
+            yield return new WaitForSeconds(0.6f);
+            for (float t = 0f; t < 0.8f; t += Time.deltaTime) { dayCard.alpha = t / 0.8f; yield return null; }
+            dayCard.alpha = 1f;
+            yield return new WaitForSeconds(dayCardSeconds);
+            for (float t = 0f; t < 0.8f; t += Time.deltaTime) { dayCard.alpha = 1f - t / 0.8f; yield return null; }
+            dayCard.alpha = 0f;
+            yield return new WaitForSeconds(0.5f);
         }
 
         IEnumerator RunDayEnd(Story story)

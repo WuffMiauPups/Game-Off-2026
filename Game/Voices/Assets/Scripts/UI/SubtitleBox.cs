@@ -33,7 +33,15 @@ namespace Voices.UI
             if (!portrait) return;
             portrait.sprite = face;
             portrait.enabled = face;
-            if (face) portrait.rectTransform.sizeDelta = face.rect.size * portraitScale;
+            if (face)
+            {
+                // Centered in its box, but always on whole face pixels (faces have different sizes).
+                var rt = portrait.rectTransform;
+                rt.anchorMin = rt.anchorMax = rt.pivot = Vector2.zero;
+                rt.sizeDelta = face.rect.size * portraitScale;
+                var room = ((RectTransform)rt.parent).rect.size - rt.sizeDelta;
+                rt.anchoredPosition = new Vector2(Mathf.Floor(room.x / 2f / portraitScale), Mathf.Floor(room.y / 2f / portraitScale)) * portraitScale;
+            }
             if (portraitFrame) portraitFrame.SetActive(face);
             float indent = face ? portraitIndent : 0f;
             SetLeft(speaker.rectTransform, speakerLeft + indent);
