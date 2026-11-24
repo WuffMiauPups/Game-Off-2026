@@ -4461,7 +4461,6 @@ GameObject:
   - component: {fileID: 2032468801}
   - component: {fileID: 2032468804}
   - component: {fileID: 2032468803}
-  - component: {fileID: 2032468802}
   m_Layer: 0
   m_Name: PortraitFrame
   m_TagString: Untagged
@@ -4489,21 +4488,6 @@ RectTransform:
   m_AnchoredPosition: {x: 6, y: 0}
   m_SizeDelta: {x: 168, y: 210}
   m_Pivot: {x: 0, y: 0.5}
---- !u!114 &2032468802
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2032468800}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.36862746, g: 0.34117648, b: 0.34117648, a: 1}
-  m_EffectDistance: {x: 3, y: 3}
-  m_UseGraphicAlpha: 1
 --- !u!114 &2032468803
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4517,14 +4501,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.14901961, g: 0.13725491, b: 0.13725491, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: -304905274356731158, guid: 0f31149c6ffb449e885a192a213d1de8, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
