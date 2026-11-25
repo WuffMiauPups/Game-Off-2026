@@ -2,7 +2,12 @@
 CLAUDE.md
 CLAUDE.local.md
 GDD.md
+TODO.md
 .claude/
 
 # Ink editor (tool, not part of the game)
 Inky/
+
+# Built game (upload to itch.io, not part of the repo)
+Game/Voices/game export/
+Game/Voices/game export.zip

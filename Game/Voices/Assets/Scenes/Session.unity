@@ -2267,6 +2267,8 @@ MonoBehaviour:
   portraitFrame: {fileID: 2032468800}
   portraitScale: 6
   portraitIndent: 150
+  box: {fileID: 0}
+  thoughtBox: {fileID: 0}
 --- !u!1 &945534894
 GameObject:
   m_ObjectHideFlags: 0
@@ -3979,7 +3981,11 @@ MonoBehaviour:
     face: {fileID: 6100094989007844717, guid: 1fdbd0fa27a96294296109a0bbd9138e, type: 3}
   - speaker: YoungDoctor
     face: {fileID: 3197886898966066398, guid: a69ccfdd61158a94385ae1e7a81d9ed8, type: 3}
-  faces: []
+  faces:
+  - {fileID: 21300000, guid: fe67c5e8e9c907c46a7215be445f9cca, type: 3}
+  - {fileID: 21300000, guid: 05d62b4dc39fff84ab15ec28defdf962, type: 3}
+  - {fileID: 21300000, guid: f64535a488b172a4e91774fd4379e465, type: 3}
+  - {fileID: 21300000, guid: 2f2ed5d1365672140813968f62c3ac10, type: 3}
   blackHoldSeconds: 2
   fadeInSeconds: 3.5
   thoughtCharsPerSecond: 16
@@ -3988,7 +3994,7 @@ MonoBehaviour:
   dayEndFadeSeconds: 5
   sceneAfterDay: MainMenu
   doctorFadeSeconds: 1
-  defaultQuestionSeconds: 15
+  defaultQuestionSeconds: 20
 --- !u!114 &1766306246
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4904,7 +4910,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Voices.UI.VoiceOverlay
   group: {fileID: 2113931394}
   face: {fileID: 586229160}
-  faceLabel: {fileID: 0}
+  faceLabel: {fileID: 528392022}
   voiceName: {fileID: 455698397}
   answer: {fileID: 252511845}
   shiftHint: {fileID: 1900000013}

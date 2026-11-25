@@ -1,53 +1,58 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using Voices.Audio;
 
 namespace Voices.UI
 {
     // Black screen with the content warning, shown once per launch before the main menu.
-    // Any key or a mouse click continues. The text lives in the MainMenu scene.
+    // It stays for a few seconds, fades out by itself, then the menu music fades in.
+    // The text lives in the MainMenu scene.
+    [RequireComponent(typeof(CanvasGroup))]
     public class ContentWarningScreen : MonoBehaviour
     {
+        public float showSeconds = 3f;
+        public float fadeSeconds = 1f;
         public Selectable selectAfter;
-        public float minSeconds = 1f;
+
+        [Header("Menu music")]
+        public VolumeChannel music;
+        public float musicFadeSeconds = 4f;
 
         static bool shown;
-        float elapsed;
-        bool closing;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void ResetShown() => shown = false;
 
-        void OnEnable()
+        IEnumerator Start()
         {
-            if (shown) gameObject.SetActive(false);
+            if (shown) { Finish(); yield break; }
+
+            var group = GetComponent<CanvasGroup>();
+            group.alpha = 1f;
+            yield return new WaitForSecondsRealtime(showSeconds);
+
+            for (float t = 0f; t < fadeSeconds; t += Time.unscaledDeltaTime)
+            {
+                group.alpha = 1f - t / fadeSeconds;
+                yield return null;
+            }
+
+            shown = true;
+            Finish();
         }
 
         void Update()
         {
-            if (closing) return;
-
-            // Keep the menu behind from reacting to the key that closes this screen.
+            // Keep the menu behind from reacting to keys while the warning is up.
             var es = EventSystem.current;
             if (es && es.currentSelectedGameObject) es.SetSelectedGameObject(null);
-
-            elapsed += Time.unscaledDeltaTime;
-            if (elapsed < minSeconds) return;
-
-            var kb = Keyboard.current;
-            var mouse = Mouse.current;
-            bool pressed = (kb != null && kb.anyKey.wasPressedThisFrame)
-                           || (mouse != null && mouse.leftButton.wasPressedThisFrame);
-            if (pressed) StartCoroutine(Close());
         }
 
-        IEnumerator Close()
+        void Finish()
         {
-            closing = true;
-            shown = true;
-            yield return null;
+            if (music) music.FadeIn(musicFadeSeconds);
             if (selectAfter) selectAfter.Select();
             gameObject.SetActive(false);
         }

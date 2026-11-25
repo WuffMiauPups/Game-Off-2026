@@ -17,6 +17,12 @@ namespace Voices.UI
         public float portraitScale = 4f;
         [Tooltip("How far the text moves right while a face is shown")]
         public float portraitIndent = 190f;
+        [Tooltip("The drawn box behind the text. Empty = the Image on this object.")]
+        public Image box;
+        [Tooltip("Box used for the player's thoughts (\"playerthoughts:\" in Ink). Empty = same box as speech.")]
+        public Sprite thoughtBox;
+
+        Sprite speechBox;
 
         float speakerLeft;
         float bodyLeft;
@@ -25,6 +31,8 @@ namespace Voices.UI
         {
             speakerLeft = speaker.rectTransform.offsetMin.x;
             bodyLeft = body.target.rectTransform.offsetMin.x;
+            if (!box) box = GetComponent<Image>();
+            if (box) speechBox = box.sprite;
             SetPortrait(null);
         }
 
@@ -63,8 +71,9 @@ namespace Voices.UI
             body.Stop();
         }
 
-        public void Play(string who, string text, float charsPerSecond = 0f, Sprite face = null)
+        public void Play(string who, string text, float charsPerSecond = 0f, Sprite face = null, bool thought = false)
         {
+            if (box && thoughtBox) box.sprite = thought ? thoughtBox : speechBox;
             SetPortrait(face);
             speaker.text = who ?? "";
             speaker.enabled = !string.IsNullOrEmpty(who);

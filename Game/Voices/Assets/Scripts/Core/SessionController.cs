@@ -17,6 +17,7 @@ namespace Voices.Core
     //
     // Ink conventions (see Assets/Resources/Ink/scene1.ink):
     //   "Name: text"       speaker + line; "playerthoughts:" / "description:" are narration
+    //                      ("playerthoughts:" uses the thought box of the SubtitleBox, if one is assigned)
     //   "* [Voice: text]"  one answer per voice, cycled with Shift; "Silence:" is taken on timeout
     //   # event: fade_in | doctors_enter
     //   # input: name      after this line the player types a name; saved in the Ink variable player_name,
@@ -93,7 +94,7 @@ namespace Voices.Core
         [Tooltip("Loaded after the day has faded out (until more days exist)")]
         public string sceneAfterDay = "MainMenu";
         public float doctorFadeSeconds = 1f;
-        public float defaultQuestionSeconds = 15f;
+        public float defaultQuestionSeconds = 20f;
 
         bool shiftUsed;
         bool gameOver;
@@ -165,6 +166,7 @@ namespace Voices.Core
             bool questionShown = false;
             string lastSpeaker = "";
             string lastText = "";
+            bool lastThought = false;
 
             while (true)
             {
@@ -194,7 +196,7 @@ namespace Voices.Core
                     bool marker = raw.Equals("(Choice)", System.StringComparison.OrdinalIgnoreCase);
                     if (marker && story.canContinue) continue;
                     questionShown = marker;
-                    if (!marker) SplitSpeaker(raw, out lastSpeaker, out lastText);
+                    if (!marker) SplitSpeaker(raw, out lastSpeaker, out lastText, out lastThought);
                     // A line directly followed by choices is the question: show it, then the answers.
                     bool isQuestion = !story.canContinue && story.currentChoices.Count > 0;
                     if (marker && !isQuestion) continue;
@@ -206,7 +208,7 @@ namespace Voices.Core
                         pendingInput = null;
                         break;
                     }
-                    yield return RunLine(lastSpeaker, lastText, pendingInput == null);
+                    yield return RunLine(lastSpeaker, lastText, pendingInput == null, lastThought);
                     if (pendingInput != null) yield return RunInput(story, pendingInput);
                     pendingInput = null;
                 }
@@ -314,8 +316,12 @@ namespace Voices.Core
         }
 
         // "Doctor 1: Hello" -> ("DOCTOR 1", "Hello"); narration prefixes and plain lines -> ("", text).
-        static void SplitSpeaker(string line, out string speaker, out string text)
+        static void SplitSpeaker(string line, out string speaker, out string text) => SplitSpeaker(line, out speaker, out text, out _);
+
+        // thought = the line started with "playerthoughts:" (shown in the thought box, if one is drawn).
+        static void SplitSpeaker(string line, out string speaker, out string text, out bool thought)
         {
+            thought = false;
             int colon = line.IndexOf(':');
             if (colon > 0 && colon <= 40)
             {
@@ -323,6 +329,7 @@ namespace Voices.Core
                 string lower = who.ToLowerInvariant();
                 if (lower == "playerthoughts" || lower == "description" || lower == "narrator")
                 {
+                    thought = lower == "playerthoughts";
                     speaker = "";
                     text = line.Substring(colon + 1).Trim();
                     return;
@@ -396,10 +403,10 @@ namespace Voices.Core
 
         float SpeedFor(string speaker) => string.IsNullOrEmpty(speaker) ? thoughtCharsPerSecond : 0f;
 
-        IEnumerator RunLine(string speaker, string text, bool waitForConfirm = true)
+        IEnumerator RunLine(string speaker, string text, bool waitForConfirm = true, bool thought = false)
         {
             subtitle.Show();
-            subtitle.Play(speaker, text, SpeedFor(speaker), FaceFor(speaker));
+            subtitle.Play(speaker, text, SpeedFor(speaker), FaceFor(speaker), thought);
             yield return WaitTyping(subtitle.body);
             if (!waitForConfirm) yield break;
             subtitle.SetHint(true);

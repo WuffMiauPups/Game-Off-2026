@@ -39,11 +39,16 @@ Arzt-Gesichter: höchstens 28 × 35, damit sie in die Gesichts-Box passen. Aktue
 | Options | 60 × 14 | 130, 103 |
 | Quit | 60 × 14 | 130, 120 |
 | Content-Warnung | 268 × 10 | 26, 163 |
-| Options: Regler Music | 94 × 8 | 132, 89 |
-| Options: Regler Sounds | 94 × 8 | 132, 103 |
+| Options: Regler Music | 94 × 8 | 132, 70 |
+| Options: Regler Sounds | 94 × 8 | 132, 82 |
 | Options: Regler-Schiene | 94 × 2 | mittig im Regler |
 | Options: Regler-Griff | 4 × 8 | wandert auf der Schiene |
-| Options: Back | 60 × 14 | 130, 120 |
+| Options: Knopf Display (Fullscreen / Windowed) | 60 × 14 | 132, 95 |
+| Options: Knopf Size (Fenstergröße) | 60 × 14 | 132, 111 |
+| Options: Knopf Max FPS | 60 × 14 | 132, 127 |
+| Options: Back | 60 × 14 | 130, 145 |
+
+Die drei Options-Knöpfe benutzen dieselbe Zeichnung wie Back (`ui_quit`).
 
 ## Schriften
 

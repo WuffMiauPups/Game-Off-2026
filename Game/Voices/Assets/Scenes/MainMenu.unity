@@ -2327,6 +2327,8 @@ MonoBehaviour:
   musicSlider: {fileID: 1378314595}
   soundsSlider: {fileID: 359749968}
   backButton: {fileID: 703544270}
+  menuMusic: {fileID: 1667373378}
+  musicCrossfadeSeconds: 4
 --- !u!4 &1397872174
 Transform:
   m_ObjectHideFlags: 0
@@ -2354,6 +2356,7 @@ GameObject:
   - component: {fileID: 1400789831}
   - component: {fileID: 1400789830}
   - component: {fileID: 1400789829}
+  - component: {fileID: 1400789832}
   m_Layer: 0
   m_Name: WarningScreen
   m_TagString: Untagged
@@ -2393,8 +2396,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eeed49e6bd2e3014297cd3d5be734d4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Voices.UI.ContentWarningScreen
+  showSeconds: 3
+  fadeSeconds: 1
   selectAfter: {fileID: 837580836}
-  minSeconds: 1
+  music: {fileID: 1667373378}
+  musicFadeSeconds: 4
 --- !u!114 &1400789830
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2433,6 +2439,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1400789827}
   m_CullTransparentMesh: 1
+--- !u!225 &1400789832
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1400789827}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!114 &1502285317
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3134,7 +3152,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 479c7573362bdb54f8ac75cbd8933dd7, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 0.6
   m_Pitch: 1
   Loop: 1
