@@ -377,6 +377,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 173664662}
+  - component: {fileID: 173664663}
   m_Layer: 0
   m_Name: OptionsPanel
   m_TagString: Untagged
@@ -408,6 +409,28 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &173664663
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 173664661}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62248c2c87314654aad415ae435a212b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Voices.UI.OptionsPanel
+  musicSlider: {fileID: 1378314595}
+  soundsSlider: {fileID: 359749968}
+  backButton: {fileID: 703544270}
+  displayLabel: Display
+  fullscreenText: Fullscreen
+  windowedText: Windowed
+  sizeLabel: Size
+  fpsLabel: Max FPS
+  vsyncText: VSync
+  unlimitedText: Unlimited
 --- !u!1 &196962737
 GameObject:
   m_ObjectHideFlags: 0
@@ -2363,18 +2386,8 @@ MonoBehaviour:
   quitButton: {fileID: 230944052}
   mainPanel: {fileID: 1667036638}
   optionsPanel: {fileID: 173664661}
-  musicSlider: {fileID: 1378314595}
-  soundsSlider: {fileID: 359749968}
-  backButton: {fileID: 703544270}
   menuMusic: {fileID: 1667373378}
   musicCrossfadeSeconds: 4
-  displayLabel: Display
-  fullscreenText: Fullscreen
-  windowedText: Windowed
-  sizeLabel: Size
-  fpsLabel: Max FPS
-  vsyncText: VSync
-  unlimitedText: Unlimited
 --- !u!4 &1397872174
 Transform:
   m_ObjectHideFlags: 0

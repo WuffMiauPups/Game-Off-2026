@@ -323,7 +323,7 @@ namespace Voices.Core
         // "Doctor 1: Hello" -> ("DOCTOR 1", "Hello"); narration prefixes and plain lines -> ("", text).
         static void SplitSpeaker(string line, out string speaker, out string text) => SplitSpeaker(line, out speaker, out text, out _);
 
-        // thought = the line started with "playerthoughts:" (shown in the thought box, if one is drawn).
+        // thought = the line started with "playerthoughts:" or "description:" (gets the thought label and box).
         static void SplitSpeaker(string line, out string speaker, out string text, out bool thought)
         {
             thought = false;
@@ -334,7 +334,7 @@ namespace Voices.Core
                 string lower = who.ToLowerInvariant();
                 if (lower == "playerthoughts" || lower == "description" || lower == "narrator")
                 {
-                    thought = lower == "playerthoughts";
+                    thought = lower != "narrator";
                     speaker = "";
                     text = line.Substring(colon + 1).Trim();
                     return;

@@ -16,6 +16,10 @@ namespace Voices.UI
         public GameObject panel;
         public Button resumeButton;
         public Button menuButton;
+        [Tooltip("Title and buttons of the pause screen, hidden while the options are open")]
+        public GameObject mainGroup;
+        public Button optionsButton;
+        public OptionsPanel options;
         public string menuScene = "MainMenu";
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -27,6 +31,20 @@ namespace Voices.UI
             panel.SetActive(false);
             resumeButton.onClick.AddListener(Resume);
             menuButton.onClick.AddListener(QuitToMenu);
+            if (optionsButton && options)
+            {
+                optionsButton.onClick.AddListener(() => ShowOptions(true));
+                options.onBack = () => ShowOptions(false);
+                options.gameObject.SetActive(false);
+            }
+        }
+
+        void ShowOptions(bool show)
+        {
+            if (!options) return;
+            if (mainGroup) mainGroup.SetActive(!show);
+            options.gameObject.SetActive(show);
+            (show ? (Selectable)options.musicSlider : resumeButton).Select();
         }
 
         void Update()
@@ -43,6 +61,7 @@ namespace Voices.UI
             Time.timeScale = 0f;
             AudioListener.pause = true;
             panel.SetActive(true);
+            ShowOptions(false);
             resumeButton.Select();
         }
 
