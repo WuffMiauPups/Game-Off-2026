@@ -499,6 +499,7 @@ GameObject:
   - component: {fileID: 230944054}
   - component: {fileID: 230944053}
   - component: {fileID: 230944052}
+  - component: {fileID: 230944056}
   m_Layer: 0
   m_Name: QuitButton
   m_TagString: Untagged
@@ -530,7 +531,7 @@ MonoBehaviour:
     m_NormalColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
     m_HighlightedColor: {r: 1, g: 1, b: 1, a: 1}
     m_PressedColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}
-    m_SelectedColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+    m_SelectedColor: {r: 1, g: 1, b: 1, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -608,6 +609,18 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -222}
   m_SizeDelta: {x: 360, y: 84}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &230944056
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 230944051}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54c224ad013b7c34a82c8255fa850519, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Voices.UI.SelectOnHover
 --- !u!1 &322208541
 GameObject:
   m_ObjectHideFlags: 0
@@ -1258,6 +1271,7 @@ GameObject:
   - component: {fileID: 703544272}
   - component: {fileID: 703544271}
   - component: {fileID: 703544270}
+  - component: {fileID: 703544274}
   m_Layer: 0
   m_Name: BackButton
   m_TagString: Untagged
@@ -1289,7 +1303,7 @@ MonoBehaviour:
     m_NormalColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
     m_HighlightedColor: {r: 1, g: 1, b: 1, a: 1}
     m_PressedColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}
-    m_SelectedColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+    m_SelectedColor: {r: 1, g: 1, b: 1, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -1367,6 +1381,18 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -222}
   m_SizeDelta: {x: 360, y: 84}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &703544274
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 703544269}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54c224ad013b7c34a82c8255fa850519, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Voices.UI.SelectOnHover
 --- !u!114 &739889689
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1486,6 +1512,7 @@ GameObject:
   - component: {fileID: 837580835}
   - component: {fileID: 837580834}
   - component: {fileID: 837580836}
+  - component: {fileID: 837580837}
   m_Layer: 0
   m_Name: StartButton
   m_TagString: Untagged
@@ -1575,7 +1602,7 @@ MonoBehaviour:
     m_NormalColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
     m_HighlightedColor: {r: 1, g: 1, b: 1, a: 1}
     m_PressedColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}
-    m_SelectedColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+    m_SelectedColor: {r: 1, g: 1, b: 1, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -1595,6 +1622,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &837580837
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 837580832}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54c224ad013b7c34a82c8255fa850519, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Voices.UI.SelectOnHover
 --- !u!114 &842895649
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2329,6 +2368,13 @@ MonoBehaviour:
   backButton: {fileID: 703544270}
   menuMusic: {fileID: 1667373378}
   musicCrossfadeSeconds: 4
+  displayLabel: Display
+  fullscreenText: Fullscreen
+  windowedText: Windowed
+  sizeLabel: Size
+  fpsLabel: Max FPS
+  vsyncText: VSync
+  unlimitedText: Unlimited
 --- !u!4 &1397872174
 Transform:
   m_ObjectHideFlags: 0
@@ -3586,6 +3632,7 @@ GameObject:
   - component: {fileID: 2088105038}
   - component: {fileID: 2088105037}
   - component: {fileID: 2088105039}
+  - component: {fileID: 2088105040}
   m_Layer: 0
   m_Name: OptionsButton
   m_TagString: Untagged
@@ -3675,7 +3722,7 @@ MonoBehaviour:
     m_NormalColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
     m_HighlightedColor: {r: 1, g: 1, b: 1, a: 1}
     m_PressedColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}
-    m_SelectedColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+    m_SelectedColor: {r: 1, g: 1, b: 1, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -3695,6 +3742,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2088105040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2088105035}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54c224ad013b7c34a82c8255fa850519, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Voices.UI.SelectOnHover
 --- !u!1 &2097019294
 GameObject:
   m_ObjectHideFlags: 0

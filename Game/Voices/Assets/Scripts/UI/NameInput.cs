@@ -42,7 +42,7 @@ namespace Voices.UI
 
         void OnChar(char c)
         {
-            if (!open || Done || typed.Length >= maxLength) return;
+            if (!open || Done || PauseMenu.IsPaused || typed.Length >= maxLength) return;
             if (char.IsLetterOrDigit(c) || c == '-' || c == '\'' || (c == ' ' && typed.Length > 0)) typed += c;
         }
 
@@ -50,7 +50,7 @@ namespace Voices.UI
         {
             if (!open) return;
             var kb = Keyboard.current;
-            if (kb != null && !Done)
+            if (kb != null && !Done && !PauseMenu.IsPaused)
             {
                 if (kb.backspaceKey.wasPressedThisFrame && typed.Length > 0) typed = typed.Substring(0, typed.Length - 1);
                 if ((kb.enterKey.wasPressedThisFrame || kb.numpadEnterKey.wasPressedThisFrame) && Value.Length > 0) Done = true;

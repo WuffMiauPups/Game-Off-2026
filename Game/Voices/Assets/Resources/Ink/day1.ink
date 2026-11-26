@@ -9,7 +9,7 @@ VAR clues = 0
 
 === Day1 ===
 
-description: Same room as yesterday.
+playerthoughts: Same room as yesterday.
 playerthoughts: Same room, but what is that smell? Something's off... 
 playerthoughts: I need to know why I even am here. I don't know anything!
 

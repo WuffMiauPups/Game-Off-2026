@@ -77,6 +77,9 @@ namespace Voices.Core
         [Header("Faces shown next to the text while that person speaks")]
         public Portrait[] portraits;
 
+        [Tooltip("Shown as the name above the player's thoughts (\"playerthoughts:\" in Ink). Empty = no name.")]
+        public string thoughtLabel = "THOUGHTS";
+
         [Header("Faces, named face_<voiceId> (empty = placeholder box)")]
         public Sprite[] faces;
 
@@ -95,6 +98,8 @@ namespace Voices.Core
         public string sceneAfterDay = "MainMenu";
         public float doctorFadeSeconds = 1f;
         public float defaultQuestionSeconds = 20f;
+        [Tooltip("An answer confirmed this shortly after the timer ran out still counts")]
+        public float timeoutGraceSeconds = 0.5f;
 
         bool shiftUsed;
         bool gameOver;
@@ -406,7 +411,7 @@ namespace Voices.Core
         IEnumerator RunLine(string speaker, string text, bool waitForConfirm = true, bool thought = false)
         {
             subtitle.Show();
-            subtitle.Play(speaker, text, SpeedFor(speaker), FaceFor(speaker), thought);
+            subtitle.Play(thought ? thoughtLabel : speaker, text, SpeedFor(speaker), FaceFor(speaker), thought);
             yield return WaitTyping(subtitle.body);
             if (!waitForConfirm) yield break;
             subtitle.SetHint(true);
@@ -441,11 +446,12 @@ namespace Voices.Core
             Coroutine timerSfx = timed && sounds && timerSounds.Count > 0 ? StartCoroutine(PlayTimerSounds(timerSounds.ToArray())) : null;
             timerSounds.Clear();
 
-            while (!timed || left > 0f)
+            while (!timed || left > -timeoutGraceSeconds)
             {
                 if (timed)
                 {
-                    left -= Time.deltaTime;
+                    // The timer waits while the game window is not in front (Alt-Tab, a Windows dialog).
+                    if (Application.isFocused) left -= Time.deltaTime;
                     float fraction = Mathf.Clamp01(left / total);
                     overlay.SetTimer(fraction);
 
@@ -539,12 +545,14 @@ namespace Voices.Core
 
         static bool ConfirmPressed()
         {
+            if (PauseMenu.IsPaused) return false;
             var kb = Keyboard.current;
             return kb != null && (kb.spaceKey.wasPressedThisFrame || kb.enterKey.wasPressedThisFrame || kb.numpadEnterKey.wasPressedThisFrame);
         }
 
         static bool ShiftPressed()
         {
+            if (PauseMenu.IsPaused) return false;
             var kb = Keyboard.current;
             return kb != null && (kb.leftShiftKey.wasPressedThisFrame || kb.rightShiftKey.wasPressedThisFrame);
         }
